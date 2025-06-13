@@ -23,9 +23,19 @@ const RegisterForm = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit =async (e) => {
     e.preventDefault();
-    
+    try {
+      await axios.post('/register', {
+        name,
+        email,
+        password,
+      });
+      alert('Registration Successful. Now you can log in')
+    } catch (e) {
+      alert('Registration Failed. Please Try again Later')
+      console.log(e)
+    }
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords don't match!");
       return;

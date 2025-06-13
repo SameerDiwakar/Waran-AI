@@ -10,6 +10,10 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import axios from "axios";
+
+axios.defaults.withCredentials = true
+axios.defaults.baseURL = "http://localhost:4000";
 
 const queryClient = new QueryClient();
 

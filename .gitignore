@@ -1,0 +1,12 @@
+Backend/node_modules/
+Backend/build/
+Backend/.env
+Backend/.env.local
+Backend/.env.development.local
+Backend/.env.test.local
+Backend/.env.production.local
+
+Frontend/node_modules/
+Frontend/build/
+Frontend/.env
+Frontend/.env.local
