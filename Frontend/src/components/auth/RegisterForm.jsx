@@ -1,12 +1,13 @@
-
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import axios from 'axios'
 
 const RegisterForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,33 +24,31 @@ const RegisterForm = () => {
     }));
   };
 
-  const handleSubmit =async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await axios.post('/register', {
-        name,
-        email,
-        password,
-      });
-      alert('Registration Successful. Now you can log in')
-    } catch (e) {
-      alert('Registration Failed. Please Try again Later')
-      console.log(e)
-    }
+    
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords don't match!");
       return;
     }
     
     setIsLoading(true);
-
-    // Simulate registration request - in real app would connect to backend
-    setTimeout(() => {
+    
+    try {
+      const response = await axios.post('/register', {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
+      
+      toast.success("Registration successful! Now you can login to your account.");
+      navigate('/login');
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast.error(error.response?.data?.message || "Registration failed. Please try again.");
+    } finally {
       setIsLoading(false);
-      toast.success("Registration successful! Please check your email for verification.");
-      // For now, we'll just show a success message
-      // In a real app, this would create the user account
-    }, 1500);
+    }
   };
 
   return (

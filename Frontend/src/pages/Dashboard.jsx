@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import WarrantyUploader from '../components/warranty/WarrantyUploader';
 import WarrantyCard from '../components/warranty/WarrantyCard';
 import TroubleshootGuide from '../components/troubleshoot/TroubleshootGuide';
+import DashboardSkeleton from '../components/ui/dashboard-skeleton';
 
 // Sample data for demonstration
 const SAMPLE_WARRANTIES = [
@@ -51,9 +51,27 @@ const SAMPLE_WARRANTIES = [
 
 const Dashboard = () => {
   const [showUploader, setShowUploader] = useState(false);
-  const [warranties, setWarranties] = useState(SAMPLE_WARRANTIES);
+  const [warranties, setWarranties] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [isLoading, setIsLoading] = useState(true);
   
+  useEffect(() => {
+    // Simulate API call to fetch warranties
+    const fetchWarranties = async () => {
+      try {
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setWarranties(SAMPLE_WARRANTIES);
+      } catch (error) {
+        console.error('Error fetching warranties:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchWarranties();
+  }, []);
+
   const filteredWarranties = warranties.filter(warranty => {
     if (activeFilter === 'all') return true;
     if (activeFilter === 'active') return warranty.status === 'active';
@@ -61,6 +79,10 @@ const Dashboard = () => {
     if (activeFilter === 'expired') return warranty.status === 'expired';
     return true;
   });
+
+  if (isLoading) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

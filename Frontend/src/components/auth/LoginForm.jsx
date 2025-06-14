@@ -1,27 +1,36 @@
-
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import axios from 'axios';
+import { UserContext } from '@/UserContext';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { setUser } = useContext(UserContext);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate login request - in real app would connect to backend
-    setTimeout(() => {
+    try {
+      const { data } = await axios.post('/login', { email, password });
+      if (data) {
+        setUser(data);
+        toast.success("Login successful!");
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error(error.response?.data?.message || "Login failed. Please try again.");
+    } finally {
       setIsLoading(false);
-      toast.success("Login successful!");
-      // For now, we'll just show a success message
-      // In a real app, this would authenticate the user and redirect to dashboard
-    }, 1500);
+    }
   };
 
   return (

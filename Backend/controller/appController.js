@@ -1,36 +1,11 @@
-const express = require("express");
-require("dotenv").config();
-const app = express();
-const cors = require("cors");
-const mongoose = require("mongoose");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken')
-const cookieParser = require('cookie-parser')
-// const axios = require('axios');
-const port = 4000;
-const bcryptSalt = bcrypt.genSaltSync(10);
-const jwtSecret = 'ndwsd93er932rh02'
 const path = require('path');
 const Mailgen = require("mailgen");
 
-
-mongoose.connect(process.env.MONGO_URL)
-.then(() => console.log('Connected to MongoDB successfully'))
-.catch((err) => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-});
-
-app.use(express.json()); 
-app.use(cookieParser())
-app.use(
-  cors({
-    credentials: true,
-    origin: ["http://localhost:5173", "http://localhost:5174", "http://192.168.29.232:8080" , "http://localhost:8080"],
-  })
-);
-
+const bcryptSalt = bcrypt.genSaltSync(10);
+const jwtSecret = 'ndwsd93er932rh02'
 
 // Test route function
 const testRoute = (req, res) => {
