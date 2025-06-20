@@ -1,12 +1,15 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useContext } from "react";
 import axios from "axios";
-
 
 export const UserContext = createContext({
   user: null,
   setUser: () => {},
   ready: false
 });
+
+export function useUser() {
+  return useContext(UserContext);
+}
 
 export function UserContextProvider({children}) {
   const [user, setUser] = useState(null);

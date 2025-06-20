@@ -1,136 +1,115 @@
 import React, { useState, useEffect } from 'react';
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import WarrantyCard from './WarrantyCard';
-import WarrantyListSkeleton from '../ui/warranty-list-skeleton';
+import axios from 'axios';
+import { useUser } from '@/UserContext';
 
 const WarrantyList = () => {
+  const { user } = useUser();
   const [warranties, setWarranties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
-    // Simulate API call to fetch warranties
-    const fetchWarranties = async () => {
-      try {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setWarranties(SAMPLE_WARRANTIES);
-      } catch (error) {
-        console.error('Error fetching warranties:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchWarranties();
   }, []);
 
+  const fetchWarranties = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`/warranties?userId=${user._id}`);
+      setWarranties(response.data);
+    } catch (error) {
+      console.error('Error fetching warranties:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdateWarranty = (updatedWarranty) => {
+    setWarranties(prev => 
+      prev.map(w => w._id === updatedWarranty._id ? updatedWarranty : w)
+    );
+  };
+
+  const handleDeleteWarranty = (warrantyId) => {
+    setWarranties(prev => prev.filter(w => w._id !== warrantyId));
+  };
+
   const filteredWarranties = warranties.filter(warranty => {
     const matchesSearch = warranty.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         warranty.brand.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = activeFilter === 'all' ? true :
-                         activeFilter === 'active' ? warranty.status === 'active' :
-                         activeFilter === 'expiring' ? warranty.status === 'expiring' :
-                         warranty.status === 'expired';
-    return matchesSearch && matchesFilter;
+                         (warranty.brand && warranty.brand.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory = categoryFilter === 'all' || warranty.category === categoryFilter;
+    const matchesStatus = statusFilter === 'all' || warranty.status === statusFilter;
+    
+    return matchesSearch && matchesCategory && matchesStatus;
   });
 
   if (isLoading) {
-    return <WarrantyListSkeleton />;
+    return <div>Loading warranties...</div>;
   }
 
   return (
-    <div className="space-y-4">
-      {/* Search and Filter Section */}
-      <div className="flex flex-col md:flex-row gap-4">
+    <div className="space-y-6">
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
         <Input
-          placeholder="Search warranties..."
+          placeholder="Search by product name or brand..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1"
+          className="max-w-sm"
         />
-        <div className="flex gap-2">
-          <Button 
-            variant={activeFilter === 'all' ? "default" : "outline"} 
-            size="sm"
-            onClick={() => setActiveFilter('all')}
-          >
-            All
-          </Button>
-          <Button 
-            variant={activeFilter === 'active' ? "default" : "outline"} 
-            size="sm"
-            onClick={() => setActiveFilter('active')}
-          >
-            Active
-          </Button>
-          <Button 
-            variant={activeFilter === 'expiring' ? "default" : "outline"} 
-            size="sm"
-            onClick={() => setActiveFilter('expiring')}
-          >
-            Expiring Soon
-          </Button>
-          <Button 
-            variant={activeFilter === 'expired' ? "default" : "outline"} 
-            size="sm"
-            onClick={() => setActiveFilter('expired')}
-          >
-            Expired
-          </Button>
-        </div>
+        
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="electronics">Electronics</SelectItem>
+            <SelectItem value="appliances">Appliances</SelectItem>
+            <SelectItem value="automotive">Automotive</SelectItem>
+            <SelectItem value="furniture">Furniture</SelectItem>
+            <SelectItem value="other">Other</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="expiring soon">Expiring Soon</SelectItem>
+            <SelectItem value="expired">Expired</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Warranty List */}
+      {/* Warranty Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredWarranties.map(warranty => (
-          <WarrantyCard key={warranty.id} warranty={warranty} />
+          <WarrantyCard 
+            key={warranty._id} 
+            warranty={warranty}
+            onUpdate={handleUpdateWarranty}
+            onDelete={handleDeleteWarranty}
+          />
         ))}
       </div>
 
       {filteredWarranties.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500">No warranties found matching your criteria.</p>
+          <p className="text-gray-500">No warranties found</p>
         </div>
       )}
     </div>
   );
 };
-
-// Sample data for demonstration
-const SAMPLE_WARRANTIES = [
-  {
-    id: '1',
-    productName: 'MacBook Pro 16"',
-    brand: 'Apple',
-    purchaseDate: '2023-10-15',
-    warrantyEnd: '2025-10-15',
-    status: 'active',
-    category: 'electronics',
-    image: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7'
-  },
-  {
-    id: '2',
-    productName: 'Sony WH-1000XM4',
-    brand: 'Sony',
-    purchaseDate: '2023-08-20',
-    warrantyEnd: '2024-08-20',
-    status: 'active',
-    category: 'electronics',
-    image: 'https://images.unsplash.com/photo-1578319439584-104c94d37305'
-  },
-  {
-    id: '3',
-    productName: 'Samsung 4K TV',
-    brand: 'Samsung',
-    purchaseDate: '2022-06-10',
-    warrantyEnd: '2023-12-10',
-    status: 'expiring',
-    category: 'electronics',
-    image: 'https://images.unsplash.com/photo-1593305841991-05c297ba4575'
-  }
-];
 
 export default WarrantyList; 

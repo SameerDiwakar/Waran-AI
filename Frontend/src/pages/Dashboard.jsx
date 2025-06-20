@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
@@ -14,6 +14,10 @@ import WarrantyUploader from '../components/warranty/WarrantyUploader';
 import WarrantyCard from '../components/warranty/WarrantyCard';
 import TroubleshootGuide from '../components/troubleshoot/TroubleshootGuide';
 import DashboardSkeleton from '../components/ui/dashboard-skeleton';
+import { UserContext } from '@/UserContext';
+import axios from 'axios';
+import DashboardHeader from '../components/dashboard/DashboardHeader';
+import DashboardStatsCard from '../components/dashboard/DashboardStatsCard';
 
 // Sample data for demonstration
 const SAMPLE_WARRANTIES = [
@@ -54,7 +58,19 @@ const Dashboard = () => {
   const [warranties, setWarranties] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
+  const { user, setUser } = useContext(UserContext);
+  const navigate = useNavigate();
   
+  const handleLogout = async () => {
+    try {
+      await axios.post('/logout');
+      setUser(null);
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   useEffect(() => {
     // Simulate API call to fetch warranties
     const fetchWarranties = async () => {
@@ -86,114 +102,46 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="waranai-container py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="bg-brand-purple text-white p-1 rounded">
-              <span className="font-bold text-xl">W</span>
-            </div>
-            <span className="text-xl font-bold text-brand-navy">WaranAI</span>
-          </Link>
-          
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="outline" 
-              className="border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white"
-              onClick={() => setShowUploader(true)}
-            >
-              Upload Warranty
-            </Button>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <div className="h-10 w-10 rounded-full bg-brand-purple/10 flex items-center justify-center">
-                    <span className="text-brand-purple font-semibold">JD</span>
-                  </div>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <div className="flex items-center justify-start gap-2 p-2">
-                  <div className="flex flex-col space-y-1 leading-none">
-                    <p className="font-medium">John Doe</p>
-                    <p className="text-sm text-muted-foreground">john.doe@example.com</p>
-                  </div>
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/profile">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/settings">Settings</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </header>
-
+      <DashboardHeader user={user} setShowUploader={setShowUploader} handleLogout={handleLogout} />
       <div className="waranai-container py-8">
         <Tabs defaultValue="warranties" className="space-y-6">
           <TabsList className="bg-white border">
             <TabsTrigger value="warranties">My Warranties</TabsTrigger>
             <TabsTrigger value="troubleshoot">Troubleshoot</TabsTrigger>
           </TabsList>
-
           <TabsContent value="warranties" className="space-y-6">
             {/* Statistics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Active Warranties</p>
-                      <h3 className="text-3xl font-bold text-brand-navy mt-2">2</h3>
-                    </div>
-                    <div className="bg-green-100 p-3 rounded-full">
-                      <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Expiring Soon</p>
-                      <h3 className="text-3xl font-bold text-brand-navy mt-2">1</h3>
-                    </div>
-                    <div className="bg-yellow-100 p-3 rounded-full">
-                      <svg className="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Total Products</p>
-                      <h3 className="text-3xl font-bold text-brand-navy mt-2">3</h3>
-                    </div>
-                    <div className="bg-blue-100 p-3 rounded-full">
-                      <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                      </svg>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <DashboardStatsCard
+                title="Active Warranties"
+                value={warranties.filter(w => w.status === 'active').length}
+                icon={
+                  <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                }
+                iconBgClass="bg-green-100"
+              />
+              <DashboardStatsCard
+                title="Expiring Soon"
+                value={warranties.filter(w => w.status === 'expiring').length}
+                icon={
+                  <svg className="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                }
+                iconBgClass="bg-yellow-100"
+              />
+              <DashboardStatsCard
+                title="Expired"
+                value={warranties.filter(w => w.status === 'expired').length}
+                icon={
+                  <svg className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                }
+                iconBgClass="bg-gray-100"
+              />
             </div>
 
             {/* Warranty Filter */}
