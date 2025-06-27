@@ -1,7 +1,5 @@
 const router = require("express").Router();
-const multer = require('multer');
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = require("../middleware/multer")
 const {
   testRoute,
   register,
@@ -26,8 +24,8 @@ router.post("/logout", logout);
 router.post("/nodemailerGmail", nodemailerGmail);
 
 // Warranty routes
-router.post("/addWarranty", upload.single('photo'), addWarranty);
-router.put("/warranty/:id", upload.single('photo'), updateWarranty);
+router.post("/addWarranty", upload.single('image'), addWarranty);
+router.put("/warranty/:id", upload.fields([{ name: 'photo', maxCount: 1 }]), updateWarranty);
 router.delete("/warranty/:id", deleteWarranty);
 router.get("/warranties", getWarranties);
 

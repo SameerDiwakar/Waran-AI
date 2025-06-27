@@ -181,7 +181,7 @@ const Dashboard = () => {
             {/* Warranty List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredWarranties.map(warranty => (
-                <WarrantyCard key={warranty.id} warranty={warranty} />
+                <WarrantyCard key={warranty._id || warranty.id} warranty={warranty} />
               ))}
               
               <Card className="flex flex-col items-center justify-center p-6 border-dashed border-2">

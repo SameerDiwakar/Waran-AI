@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 const WarrantyDetailsDialog = ({ open, onOpenChange, warranty, daysLeft, statusText, formatDate, onEdit }) => (
@@ -8,6 +8,9 @@ const WarrantyDetailsDialog = ({ open, onOpenChange, warranty, daysLeft, statusT
       <DialogHeader>
         <DialogTitle>{warranty.productName} Details</DialogTitle>
       </DialogHeader>
+      <DialogDescription>
+        Detailed information about your warranty, including brand, category, purchase and expiry dates, and status.
+      </DialogDescription>
       <div className="space-y-4 pt-4">
         <div className="w-full h-56 rounded-lg overflow-hidden mb-4">
           <img 

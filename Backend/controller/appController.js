@@ -1,3 +1,4 @@
+require('dotenv').config();
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken')
@@ -8,8 +9,9 @@ const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = 'ndwsd93er932rh02'
 const multer = require('multer')
 const storage = multer.memoryStorage();
-const upload = multer({storage})
 const Warranty = require("../models/warranty");
+const cloudinary = require("../utlis/cloudinary");
+const upload = require("../middleware/multer");
 
 // Test route function
 const testRoute = (req, res) => {
@@ -93,16 +95,24 @@ const calculateWarrantyStatus = (warrantyEndDate) => {
 
 const addWarranty = async (req, res) => {
   try {
-    const {productName, brand, purchaseDate, warrantyEnd, category, invoice, userId} = req.body;
-    const photoBase64 = req.file ? req.file.buffer.toString('base64') : null;
-    
-    // Validate required fields
+    const { productName, brand, purchaseDate, warrantyEnd, category, invoice, userId } = req.body;
+
     if (!productName || !purchaseDate || !warrantyEnd || !category || !userId) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
-    
+
+    let imageUrl = null;
+
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: 'image',
+        folder: 'warranty_images',
+      });
+      imageUrl = result.secure_url;
+    }
+
     const status = calculateWarrantyStatus(warrantyEnd);
-    
+
     const newWarranty = new Warranty({
       productName,
       brand: brand || '',
@@ -110,32 +120,42 @@ const addWarranty = async (req, res) => {
       warrantyEnd,
       status,
       category,
-      image: photoBase64,
+      image: imageUrl,
       invoice: invoice || '',
       userId,
     });
-    
+
     await newWarranty.save();
-    res.status(201).json({message: 'Warranty Created', warranty: newWarranty});
+    res.status(201).json({ message: 'Warranty Created', warranty: newWarranty });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({message: 'Error Creating Warranty'});
+    console.error(error);
+    res.status(500).json({ message: 'Error Creating Warranty' });
   }
 };
+
 
 const updateWarranty = async (req, res) => {
   try {
     const { id } = req.params;
     const {productName, brand, purchaseDate, warrantyEnd, category, invoice, userId} = req.body;
-    const photoBase64 = req.file ? req.file.buffer.toString('base64') : null;
-    
+    // let imageUrl = null;
+    // if (req.file) {
+    //   const uploadResult = await new Promise((resolve, reject) => {
+    //     cloudinary.uploader.upload_stream(
+    //       { resource_type: 'image', folder: 'warranty_images' },
+    //       (error, result) => {
+    //         if (error) reject(error);
+    //         else resolve(result);
+    //       }
+    //     ).end(req.file.buffer);
+    //   });
+    //   imageUrl = uploadResult.secure_url;
+    // }
     // Validate required fields
     if (!productName || !purchaseDate || !warrantyEnd || !category || !userId) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
-    
     const status = calculateWarrantyStatus(warrantyEnd);
-    
     const updateData = {
       productName,
       brand: brand || '',
@@ -145,23 +165,16 @@ const updateWarranty = async (req, res) => {
       category,
       invoice: invoice || '',
       userId,
+      // ...(imageUrl && { image: imageUrl }),
     };
-    
-    // Only update image if a new one is provided
-    if (photoBase64) {
-      updateData.image = photoBase64;
-    }
-    
     const updatedWarranty = await Warranty.findByIdAndUpdate(
       id,
       updateData,
       { new: true }
     );
-    
     if (!updatedWarranty) {
       return res.status(404).json({ message: 'Warranty not found' });
     }
-    
     res.json({message: 'Warranty Updated', warranty: updatedWarranty});
   } catch (error) {
     console.log(error);

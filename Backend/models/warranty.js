@@ -16,11 +16,17 @@ const warrantySchema = new Schema({
   },
   category: {
     type: String,
-    enum: ['electronics', 'appliances', 'other', 'automotive', 'furniture'],
-    required: true
+    enum: ['electronics', 'appliances', 'furniture', 'automotive', 'other'],
+    required: false
   },
-  image: String,
-  invoice: String,
+  image: {
+    type: String,
+    required: false
+  },
+  invoice: {
+    type: String,
+    required: false
+  },
   userId: String,
 });
 
