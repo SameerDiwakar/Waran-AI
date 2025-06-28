@@ -10,7 +10,8 @@ const {
   addWarranty,
   updateWarranty,
   deleteWarranty,
-  getWarranties
+  getWarranties,
+  troubleshootIssue
 } = require("../controller/appController");
 
 // Auth routes
@@ -28,5 +29,8 @@ router.post("/addWarranty", upload.single('image'), addWarranty);
 router.put("/warranty/:id", upload.single('image'), updateWarranty);
 router.delete("/warranty/:id", deleteWarranty);
 router.get("/warranties", getWarranties);
+
+// AI Troubleshooting route
+router.post("/troubleshoot", troubleshootIssue);
 
 module.exports = router;

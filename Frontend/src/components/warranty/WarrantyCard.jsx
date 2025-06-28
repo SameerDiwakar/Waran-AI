@@ -81,7 +81,8 @@ const WarrantyCard = ({ warranty, onUpdate, onDelete }) => {
   };
 
   const handleGetTroubleshooting = () => {
-    window.location.href = `/dashboard?tab=troubleshoot&product=${encodeURIComponent(warranty.productName)}`;
+    const warrantyInfo = encodeURIComponent(`${warranty.productName} ${warranty.brand ? `(${warranty.brand})` : ''}`);
+    window.location.href = `/dashboard?tab=troubleshoot&product=${warrantyInfo}`;
   };
 
   const handleDelete = async () => {
