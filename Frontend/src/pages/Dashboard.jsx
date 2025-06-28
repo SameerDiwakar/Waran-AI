@@ -19,40 +19,6 @@ import axios from 'axios';
 import DashboardHeader from '../components/dashboard/DashboardHeader';
 import DashboardStatsCard from '../components/dashboard/DashboardStatsCard';
 
-// Sample data for demonstration
-const SAMPLE_WARRANTIES = [
-  {
-    id: '1',
-    productName: 'MacBook Pro 16"',
-    brand: 'Apple',
-    purchaseDate: '2023-10-15',
-    warrantyEnd: '2025-10-15',
-    status: 'active',
-    category: 'electronics',
-    image: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7'
-  },
-  {
-    id: '2',
-    productName: 'Sony WH-1000XM4',
-    brand: 'Sony',
-    purchaseDate: '2023-08-20',
-    warrantyEnd: '2024-08-20',
-    status: 'active',
-    category: 'electronics',
-    image: 'https://images.unsplash.com/photo-1578319439584-104c94d37305'
-  },
-  {
-    id: '3',
-    productName: 'Samsung 4K TV',
-    brand: 'Samsung',
-    purchaseDate: '2022-06-10',
-    warrantyEnd: '2023-12-10',
-    status: 'expiring',
-    category: 'electronics',
-    image: 'https://images.unsplash.com/photo-1593305841991-05c297ba4575'
-  }
-];
-
 const Dashboard = () => {
   const [showUploader, setShowUploader] = useState(false);
   const [warranties, setWarranties] = useState([]);
@@ -72,29 +38,38 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    // Simulate API call to fetch warranties
     const fetchWarranties = async () => {
       try {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setWarranties(SAMPLE_WARRANTIES);
+        setIsLoading(true);
+        if (!user || !user._id) return;
+        const response = await axios.get(`/warranties?userId=${user._id}`);
+        setWarranties(response.data);
       } catch (error) {
         console.error('Error fetching warranties:', error);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchWarranties();
-  }, []);
+  }, [user]);
 
   const filteredWarranties = warranties.filter(warranty => {
     if (activeFilter === 'all') return true;
     if (activeFilter === 'active') return warranty.status === 'active';
-    if (activeFilter === 'expiring') return warranty.status === 'expiring';
+    if (activeFilter === 'expiring') return warranty.status === 'expiring soon';
     if (activeFilter === 'expired') return warranty.status === 'expired';
     return true;
   });
+
+  const handleUpdateWarranty = (updatedWarranty) => {
+    setWarranties(prev => 
+      prev.map(w => (w._id || w.id) === (updatedWarranty._id || updatedWarranty.id) ? updatedWarranty : w)
+    );
+  };
+
+  const handleDeleteWarranty = (warrantyId) => {
+    setWarranties(prev => prev.filter(w => (w._id || w.id) !== warrantyId));
+  };
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -124,7 +99,7 @@ const Dashboard = () => {
               />
               <DashboardStatsCard
                 title="Expiring Soon"
-                value={warranties.filter(w => w.status === 'expiring').length}
+                value={warranties.filter(w => w.status === 'expiring soon').length}
                 icon={
                   <svg className="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -181,7 +156,12 @@ const Dashboard = () => {
             {/* Warranty List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredWarranties.map(warranty => (
-                <WarrantyCard key={warranty._id || warranty.id} warranty={warranty} />
+                <WarrantyCard 
+                  key={warranty._id || warranty.id} 
+                  warranty={warranty}
+                  onUpdate={handleUpdateWarranty}
+                  onDelete={handleDeleteWarranty}
+                />
               ))}
               
               <Card className="flex flex-col items-center justify-center p-6 border-dashed border-2">

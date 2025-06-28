@@ -25,7 +25,7 @@ router.post("/nodemailerGmail", nodemailerGmail);
 
 // Warranty routes
 router.post("/addWarranty", upload.single('image'), addWarranty);
-router.put("/warranty/:id", upload.fields([{ name: 'photo', maxCount: 1 }]), updateWarranty);
+router.put("/warranty/:id", upload.single('image'), updateWarranty);
 router.delete("/warranty/:id", deleteWarranty);
 router.get("/warranties", getWarranties);
 

@@ -64,7 +64,7 @@ const ManualWarrantyEntry = ({ onSuccess, onClose }) => {
       
       // Add image if selected
       if (imageFile) {
-        submitData.append('photo', imageFile);
+        submitData.append('image', imageFile);
       }
       
       // Add userId

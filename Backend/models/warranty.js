@@ -28,7 +28,7 @@ const warrantySchema = new Schema({
     required: false
   },
   userId: String,
-});
+}, { timestamps: true });
 
 const warrantyModel = mongoose.model('Warranty', warrantySchema);
 

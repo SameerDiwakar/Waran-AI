@@ -19,6 +19,11 @@ import EditWarrantyDialog from './EditWarrantyDialog';
 
 const WarrantyCard = ({ warranty, onUpdate, onDelete }) => {
   const { user } = useUser();
+  
+  // Debug logging
+  // console.log('WarrantyCard received warranty:', warranty);
+  // console.log('Warranty ID:', warranty._id || warranty.id);
+  
   // Calculate days left in warranty
   const today = new Date();
   const warrantyEndDate = new Date(warranty.warrantyEnd);
@@ -82,9 +87,11 @@ const WarrantyCard = ({ warranty, onUpdate, onDelete }) => {
   const handleDelete = async () => {
     try {
       setIsLoading(true);
-      await axios.delete(`/warranty/${warranty._id}`);
+      const warrantyId = warranty._id || warranty.id;
+      console.log('Deleting warranty with ID:', warrantyId);
+      await axios.delete(`/warranty/${warrantyId}`);
       toast.success(`${warranty.productName} warranty has been deleted`);
-      onDelete(warranty._id);
+      onDelete(warrantyId);
     } catch (error) {
       console.error('Delete error:', error);
       toast.error(error.response?.data?.message || "Error deleting warranty");
@@ -133,7 +140,7 @@ const WarrantyCard = ({ warranty, onUpdate, onDelete }) => {
       
       // Add new image if selected
       if (newImageFile) {
-        formData.append('photo', newImageFile);
+        formData.append('image', newImageFile);
       }
       
       // Add userId
