@@ -7,9 +7,14 @@ const cookieParser = require('cookie-parser')
 const mongoose = require("mongoose");
 require("dotenv").config();
 
+// Import warranty scheduler
+const { scheduleWarrantyCheck } = require('./utlis/warrantyScheduler');
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URL)
-.then(() => console.log('Connected to MongoDB successfully'))
+.then(() => {
+    console.log('Connected to MongoDB successfully');
+})
 .catch((err) => {
     console.error('MongoDB connection error:', err);
     process.exit(1);
@@ -28,7 +33,9 @@ app.use(cors({
 // Routes
 app.use('/', appRoute)
 
+// Start server and initialize scheduler
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    console.log(`Server listening on port ${port}`);
+    scheduleWarrantyCheck();
 })
 

@@ -12,7 +12,7 @@ const warrantySchema = new Schema({
   status: {
     type: String,
     enum: ['active', 'expired', 'expiring soon'],
-    required: true
+    default: 'active'
   },
   category: {
     type: String,
@@ -27,7 +27,11 @@ const warrantySchema = new Schema({
     type: String,
     required: false
   },
-  userId: String,
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
 }, { timestamps: true });
 
 const warrantyModel = mongoose.model('Warranty', warrantySchema);

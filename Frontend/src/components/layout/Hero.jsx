@@ -1,8 +1,22 @@
 import React from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { useUser } from '@/UserContext';
 
 const Hero = () => {
+  const { user } = useUser();
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (user) {
+     
+      navigate('/dashboard');
+    } else {
+      
+      navigate('/login');
+    }
+  };
+
   return (
     <div>
       <section className="bg-gradient-to-br from-brand-navy to-brand-purple py-20">
@@ -14,11 +28,13 @@ const Hero = () => {
                 WaranAI uses powerful AI to manage your product warranties, remind you before they expire, and help you troubleshoot issues.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/register">
-                  <Button size="lg" className="bg-white text-brand-purple hover:bg-gray-100 font-bold">
-                    Get Started Free
-                  </Button>
-                </Link>
+                <Button 
+                  size="lg" 
+                  className="bg-white text-brand-purple hover:bg-gray-100 font-bold"
+                  onClick={handleGetStarted}
+                >
+                  Get Started Free
+                </Button>
                 <Link to="/about">
                   <Button size="lg" variant="outline" className="border-white text-brand-purple hover:bg-white/10">
                     Learn More
