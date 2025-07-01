@@ -7,7 +7,9 @@ const {
   register,
   login,
   profile,
-  logout
+  logout,
+  deleteAccount,
+  updateProfile
 } = require("../controller/authController");
 
 const {
@@ -37,6 +39,7 @@ router.post("/register", register);
 router.post("/login", login);
 router.get("/profile", profile);
 router.post("/logout", logout);
+router.put("/profile", updateProfile);
 
 // Email routes
 router.post("/nodemailerGmail", nodemailerGmail);
@@ -53,5 +56,8 @@ router.post("/checkWarrantyStatuses", manualWarrantyCheck);
 
 // AI Troubleshooting route
 router.post("/troubleshoot", troubleshootIssue);
+
+// Account deletion route
+router.delete("/account", deleteAccount);
 
 module.exports = router;

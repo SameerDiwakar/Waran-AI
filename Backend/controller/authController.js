@@ -71,10 +71,67 @@ const logout = (req, res) => {
   res.cookie('token','').json(true);
 };
 
+// Delete account route function
+const deleteAccount = async (req, res) => {
+  const { token } = req.cookies;
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+  jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+    if (err) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      await User.findByIdAndDelete(userData.id);
+      res.cookie('token', '').json({ message: "Account deleted" });
+    } catch (e) {
+      res.status(500).json({ message: "Failed to delete account" });
+    }
+  });
+};
+
+// Update profile route function
+const updateProfile = async (req, res) => {
+  const { name, email, oldPassword, newPassword } = req.body;
+  const { token } = req.cookies;
+  if (!token) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+  jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+    if (err) return res.status(401).json({ success: false, message: "Unauthorized" });
+    try {
+      const user = await User.findById(userData.id);
+      if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+      // If changing email or password, require oldPassword and verify
+      if ((email && email !== user.email) || newPassword) {
+        if (!oldPassword) {
+          return res.status(400).json({ success: false, message: "Current password required to change email or password" });
+        }
+        const passOk = bcrypt.compareSync(oldPassword, user.password);
+        if (!passOk) {
+          return res.status(401).json({ success: false, message: "Incorrect current password" });
+        }
+        // Prevent new password from being the same as old password
+        if (newPassword && bcrypt.compareSync(newPassword, user.password)) {
+          return res.status(400).json({ success: false, message: "New password cannot be the same as the old password" });
+        }
+      }
+
+      // Update fields
+      if (name) user.name = name;
+      if (email && email !== user.email) user.email = email;
+      if (newPassword) user.password = bcrypt.hashSync(newPassword, bcryptSalt);
+      await user.save();
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ success: false, message: "Failed to update profile" });
+    }
+  });
+};
+
 module.exports = { 
   testRoute,
   register,
   login,
   profile,
-  logout
+  logout,
+  deleteAccount,
+  updateProfile
 }; 

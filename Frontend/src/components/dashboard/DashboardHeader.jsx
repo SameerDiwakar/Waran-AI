@@ -45,9 +45,6 @@ const DashboardHeader = ({ user, setShowUploader, handleLogout }) => (
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link to="/profile">Profile</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
               <Link to="/settings">Settings</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />

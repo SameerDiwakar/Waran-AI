@@ -80,11 +80,6 @@ const WarrantyCard = ({ warranty, onUpdate, onDelete }) => {
     setShowEditDialog(true);
   };
 
-  const handleGetTroubleshooting = () => {
-    const warrantyInfo = encodeURIComponent(`${warranty.productName} ${warranty.brand ? `(${warranty.brand})` : ''}`);
-    window.location.href = `/dashboard?tab=troubleshoot&product=${warrantyInfo}`;
-  };
-
   const handleDelete = async () => {
     try {
       setIsLoading(true);
@@ -193,7 +188,6 @@ const WarrantyCard = ({ warranty, onUpdate, onDelete }) => {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={handleViewDetails}>View Details</DropdownMenuItem>
                 <DropdownMenuItem onClick={handleEditWarranty}>Edit Warranty</DropdownMenuItem>
-                <DropdownMenuItem onClick={handleGetTroubleshooting}>Get Troubleshooting</DropdownMenuItem>
                 <DropdownMenuItem onClick={handleDelete} className="text-red-500">Delete</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
