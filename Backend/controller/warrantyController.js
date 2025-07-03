@@ -28,6 +28,11 @@ const addWarranty = async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
+    // Validate purchaseDate is not after warrantyEnd
+    if (new Date(purchaseDate) > new Date(warrantyEnd)) {
+      return res.status(400).json({ message: 'Purchase date cannot be after warranty end date' });
+    }
+
     let imageUrl = null;
 
     if (req.file) {
@@ -80,6 +85,11 @@ const updateWarranty = async (req, res) => {
     const { productName, brand, purchaseDate, warrantyEnd, category, invoice, userId } = req.body;
     if (!productName || !purchaseDate || !warrantyEnd || !category || !userId) {
       return res.status(400).json({ message: 'Missing required fields' });
+    }
+    
+    // Validate purchaseDate is not after warrantyEnd
+    if (new Date(purchaseDate) > new Date(warrantyEnd)) {
+      return res.status(400).json({ message: 'Purchase date cannot be after warranty end date' });
     }
     
     // Get the current warranty to check if status is changing

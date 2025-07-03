@@ -76,8 +76,8 @@ const Slider = () => {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="-left-4 top-1/2 -translate-y-1/2" />
-              <CarouselNext className="-right-4 top-1/2 -translate-y-1/2" />
+              <CarouselPrevious className="left-2 md:-left-4 top-1/2 -translate-y-1/2" />
+              <CarouselNext className="right-2 md:-right-4 top-1/2 -translate-y-1/2" />
             </Carousel>
           </div>
         </div>

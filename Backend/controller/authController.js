@@ -4,15 +4,35 @@ const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = 'ndwsd93er932rh02';
+const { z } = require('zod');
 
 // Test route function
 const testRoute = (req, res) => {
   res.json("test ok");
 };
 
+// Zod schemas
+const registerSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[a-zA-Z]/, 'Password must include at least one letter')
+    .regex(/[0-9]/, 'Password must include at least one number'),
+});
+const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
+});
+
 // Register route function
 const register = async (req, res) => {
   const { name, email, password } = req.body;
+  // Zod validation
+  const result = registerSchema.safeParse({ name, email, password });
+  if (!result.success) {
+    return res.status(400).json({ message: result.error.errors[0]?.message || 'Invalid input' });
+  }
   try {
     const userDoc = await User.create({
       name,
@@ -28,6 +48,11 @@ const register = async (req, res) => {
 // Login route function
 const login = async (req, res) => {
   const { email, password } = req.body;
+  // Zod validation
+  const result = loginSchema.safeParse({ email, password });
+  if (!result.success) {
+    return res.status(400).json({ message: result.error.errors[0]?.message || 'Invalid input' });
+  }
   try {
     const userDoc = await User.findOne({ email });
     if (!userDoc) {
@@ -43,7 +68,11 @@ const login = async (req, res) => {
       {},
       (err, token) => {
         if (err) throw err;
-        res.cookie('token', token).json(userDoc);
+        res.cookie('token', token, {
+          httpOnly: true,
+          sameSite: 'lax',
+          maxAge: 1000 * 60 * 60 * 24 * 30 // 30 days
+        }).json(userDoc);
       }
     );
   } catch (e) {

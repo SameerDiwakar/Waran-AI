@@ -6,16 +6,34 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from "sonner";
 import axios from 'axios';
 import { UserContext } from '@/UserContext';
+import { z } from 'zod';
+import { Eye, EyeOff } from 'lucide-react';
+
+const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[a-zA-Z]/, 'Password must include at least one letter')
+    .regex(/[0-9]/, 'Password must include at least one number'),
+});
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { setUser } = useContext(UserContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Zod validation
+    const result = loginSchema.safeParse({ email, password });
+    if (!result.success) {
+      const errorMsg = result.error.errors[0]?.message || 'Invalid input';
+      toast.error(errorMsg);
+      return;
+    }
     setIsLoading(true);
 
     try {
@@ -66,14 +84,25 @@ const LoginForm = () => {
                 Forgot password?
               </Link>
             </div>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="waranai-input"
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="waranai-input pr-10"
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-purple"
+                tabIndex={-1}
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
           <Button 
             type="submit" 

@@ -17,7 +17,7 @@ const NavbarUserMenu = ({ user, handleLogout, isMobile = false }) => {
     return (
       <div className="mt-4">
         <div className="flex items-center gap-2 mb-2">
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-8 w-8 border-2 border-[#6942EF]">
             <AvatarImage src={user.avatar} alt={user.name} />
             <AvatarFallback>{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
@@ -37,7 +37,7 @@ const NavbarUserMenu = ({ user, handleLogout, isMobile = false }) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-8 w-8 border-2 border-[#6942EF]">
             <AvatarImage src={user.avatar} alt={user.name} />
             <AvatarFallback>{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>

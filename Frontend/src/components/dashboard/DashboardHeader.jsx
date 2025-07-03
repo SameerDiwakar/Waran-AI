@@ -22,7 +22,7 @@ const DashboardHeader = ({ user, setShowUploader, handleLogout }) => (
       <div className="flex items-center gap-4">
         <Button 
           variant="outline" 
-          className="border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white"
+          className="border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white transition-transform duration-200 active:scale-95 hover:scale-105 shadow-md"
           onClick={() => setShowUploader(true)}
         >
           Upload Warranty

@@ -51,6 +51,12 @@ const ManualWarrantyEntry = ({ onSuccess, onClose }) => {
       return;
     }
     
+    // Validate purchaseDate is not after warrantyEnd
+    if (new Date(formData.purchaseDate) > new Date(formData.warrantyEnd)) {
+      toast.error("Purchase date cannot be after warranty end date");
+      return;
+    }
+    
     try {
       setIsLoading(true);
       const submitData = new FormData();

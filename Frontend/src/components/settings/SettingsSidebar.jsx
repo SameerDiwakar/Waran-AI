@@ -41,7 +41,7 @@ const SettingsSidebar = ({ user }) => {
         <div className="p-6 flex flex-col h-full">
           <div className="relative py-6 mb-6 rounded-2xl flex flex-col items-center ">
             <div className="flex items-center justify-center mb-2">
-              <Avatar className="h-16 w-16 shadow-lg border-4 bg-white">
+              <Avatar className="h-16 w-16 shadow-lg border-4 bg-white border-[#6942EF]">
                 <AvatarImage src={user.avatar} />
                 <AvatarFallback className="bg-brand-purple text-xl text-white">{user.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
               </Avatar>

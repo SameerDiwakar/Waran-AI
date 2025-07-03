@@ -123,6 +123,12 @@ const WarrantyCard = ({ warranty, onUpdate, onDelete }) => {
       return;
     }
     
+    // Validate purchaseDate is not after warrantyEnd
+    if (new Date(editFormData.purchaseDate) > new Date(editFormData.warrantyEnd)) {
+      toast.error("Purchase date cannot be after warranty end date");
+      return;
+    }
+    
     try {
       setIsLoading(true);
       const formData = new FormData();
