@@ -1,8 +1,47 @@
 import React from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 
 const Footer = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleScrollToFeatures = (e) => {
+    e.preventDefault();
+    if (location.pathname !== '/') {
+      navigate('/', { state: { scrollToFeatures: true } });
+    } else {
+      const featuresSection = document.getElementById('features');
+      if (featuresSection) {
+        featuresSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const handleAboutClick = (e) => {
+    e.preventDefault();
+    if (location.pathname !== '/about') {
+      navigate('/about');
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handlePricingClick = (e) => {
+    e.preventDefault();
+    if (location.pathname !== '/pricing') {
+      navigate('/pricing');
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
     <div>
       <footer className="bg-gray-100 py-12">
@@ -23,9 +62,9 @@ const Footer = () => {
             <div>
               <h3 className="text-sm font-semibold uppercase text-gray-500 mb-4">Product</h3>
               <ul className="space-y-2">
-                <li><Link to="/features" className="text-gray-600 hover:text-brand-purple">Features</Link></li>
-                <li><Link to="/pricing" className="text-gray-600 hover:text-brand-purple">Pricing</Link></li>
-                <li><Link to="/about" className="text-gray-600 hover:text-brand-purple">About Us</Link></li>
+                <li><a href="#features" onClick={handleScrollToFeatures} className="text-gray-600 hover:text-brand-purple">Features</a></li>
+                <li><a href="/pricing" onClick={handlePricingClick} className="text-gray-600 hover:text-brand-purple">Pricing</a></li>
+                <li><a href="/about" onClick={handleAboutClick} className="text-gray-600 hover:text-brand-purple">About Us</a></li>
               </ul>
             </div>
             

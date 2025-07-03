@@ -8,6 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LogOut, Settings, Mail } from "lucide-react";
 
 const DashboardHeader = ({ user, setShowUploader, handleLogout }) => (
   <header className="bg-white shadow-sm">
@@ -36,20 +37,27 @@ const DashboardHeader = ({ user, setShowUploader, handleLogout }) => (
               </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <div className="flex items-center justify-start gap-2 p-2">
-              <div className="flex flex-col space-y-1 leading-none">
+          <DropdownMenuContent className="w-64 rounded-xl border border-brand-purple/20 bg-white shadow-2xl p-1.5 animate-fade-in" align="end">
+            <div className="flex items-center justify-center gap-2 p-2">
+              <div className="flex flex-col items-center justify-center space-y-1 text-center leading-none">
                 <p className="font-medium">{user?.name || 'User'}</p>
-                <p className="text-sm text-muted-foreground">{user?.email || 'user@example.com'}</p>
+                <span className="flex items-center justify-center gap-2 text-sm text-brand-purple/80">
+                  <Mail className="h-4 w-4 transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-6" />
+                  {user?.email || 'user@example.com'}
+                </span>
               </div>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link to="/settings">Settings</Link>
+              <Link to="/settings" className="flex items-center gap-2 group">
+                <Settings className="h-4 w-4 transition-transform duration-200 group-hover:rotate-12 group-hover:scale-110 text-brand-purple" />
+                <span>Settings</span>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              Logout
+            <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 group text-red-600 hover:text-red-700">
+              <LogOut className="h-4 w-4 transition-transform duration-200 group-hover:-rotate-12 group-hover:scale-110" />
+              <span>Logout</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -12,6 +12,8 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { UserContextProvider } from "./UserContext";
 import axios from "axios";
+import About from "./pages/About";
+import Pricing from "./pages/Pricing";
 
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = "http://localhost:4000";
@@ -45,6 +47,8 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            <Route path="/about" element={<About />} />
+            <Route path="/pricing" element={<Pricing />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

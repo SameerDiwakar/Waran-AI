@@ -1,13 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import Hero from '../components/layout/Hero';
 import Features from '../components/layout/Features';
-import Working from '../components/layout/Working';
-import CTA from '../components/layout/CTA';
+import Slider from '../components/layout/Slider';
+import Testimonials from '../components/layout/Testimonials';
 import Footer from '../components/layout/Footer';
 import { UserContextProvider } from '../UserContext';
+import About from './About';
 
 const Index = () => {
+  const location = useLocation();
+  useEffect(() => {
+    if (location.state && location.state.scrollToFeatures) {
+      const featuresSection = document.getElementById('features');
+      if (featuresSection) {
+        featuresSection.scrollIntoView({ behavior: 'smooth' });
+      }
+      // Remove the state so it doesn't scroll again on refresh
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [location]);
+
   return (
     <UserContextProvider>
       <div className="min-h-screen flex flex-col">
@@ -20,11 +34,11 @@ const Index = () => {
         <Features/>  
         
         {/* How It Works Section */}
-        <Working/>
+        <Slider/>
         
-        {/* CTA Section */}
-        <CTA/>
-
+        {/* Testimonials Section */}
+        <Testimonials/>
+      
         {/* Footer */}
         <Footer/>
       </div>

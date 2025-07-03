@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserContext } from '@/UserContext';
@@ -22,6 +22,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     try {
@@ -32,6 +33,18 @@ const Navbar = () => {
     } catch (error) {
       console.error('Logout error:', error);
       toast.error("Failed to logout. Please try again.");
+    }
+  };
+
+  const handleScrollToFeatures = (e) => {
+    e.preventDefault();
+    if (location.pathname !== '/') {
+      navigate('/', { state: { scrollToFeatures: true } });
+    } else {
+      const featuresSection = document.getElementById('features');
+      if (featuresSection) {
+        featuresSection.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   };
 
@@ -50,7 +63,7 @@ const Navbar = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            <NavbarLinks />
+            <NavbarLinks onFeaturesClick={handleScrollToFeatures} />
             {!user ? (
               <NavbarAuthButtons />
             ) : (
