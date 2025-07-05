@@ -4,6 +4,7 @@ const User = require("../models/user");
 const cloudinary = require("../utlis/cloudinary");
 const { sendWarrantyReminder } = require("./emailController");
 const fs = require('fs');
+const documentProcessor = require("../utlis/documentProcessor");
 
 const calculateWarrantyStatus = (warrantyEndDate) => {
   const currentDate = new Date();
@@ -23,30 +24,30 @@ const calculateWarrantyStatus = (warrantyEndDate) => {
 
 const addWarranty = async (req, res) => {
   try {
-    const { productName, brand, purchaseDate, warrantyEnd, category, userId } = req.body;
-
-    if (!productName || !purchaseDate || !warrantyEnd || !category || !userId) {
-      return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    // Validate purchaseDate is not after warrantyEnd
-    if (new Date(purchaseDate) > new Date(warrantyEnd)) {
-      return res.status(400).json({ message: 'Purchase date cannot be after warranty end date' });
-    }
-
+    // Accept both JSON and multipart/form-data
+    let data = req.body;
     let imageUrl = null;
     let invoiceUrl = null;
 
+    // If multipart/form-data, req.file or req.files may be present
     // Handle product image upload (if present)
-    if (req.file) {
+    if (req.file && req.file.fieldname === 'image') {
       const result = await cloudinary.uploader.upload(req.file.path, {
         resource_type: 'image',
         folder: 'warranty_images',
       });
       imageUrl = result.secure_url;
     }
+    // If using upload.fields or uploadMultiple
+    if (req.files && req.files['image'] && req.files['image'][0]) {
+      const result = await cloudinary.uploader.upload(req.files['image'][0].path, {
+        resource_type: 'image',
+        folder: 'warranty_images',
+      });
+      imageUrl = result.secure_url;
+    }
 
-    // Handle invoice file upload (if present)
+    // Handle invoice - either from file upload or from OCR processing
     if (req.files && req.files['invoice'] && req.files['invoice'][0]) {
       const file = req.files['invoice'][0];
       const resourceType = file.mimetype === 'application/pdf' ? 'raw' : 'image';
@@ -64,6 +65,20 @@ const addWarranty = async (req, res) => {
         folder: 'warranty_invoices',
       });
       invoiceUrl = result.secure_url;
+    } else if (data.invoice) {
+      // Invoice URL from OCR processing
+      invoiceUrl = data.invoice;
+    }
+
+    const { productName, brand, purchaseDate, warrantyEnd, category, userId } = data;
+
+    if (!productName || !purchaseDate || !warrantyEnd || !category || !userId) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    // Validate purchaseDate is not after warrantyEnd
+    if (new Date(purchaseDate) > new Date(warrantyEnd)) {
+      return res.status(400).json({ message: 'Purchase date cannot be after warranty end date' });
     }
 
     const status = calculateWarrantyStatus(warrantyEnd);
@@ -75,7 +90,7 @@ const addWarranty = async (req, res) => {
       warrantyEnd,
       status,
       category,
-      image: imageUrl,
+      image: imageUrl, // Store product image URL
       invoice: invoiceUrl || '',
       userId,
     });

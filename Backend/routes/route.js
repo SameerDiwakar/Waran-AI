@@ -22,6 +22,10 @@ const {
 } = require("../controller/warrantyController");
 
 const {
+  processDocument
+} = require("../utlis/documentProcessor");
+
+const {
   troubleshootIssue
 } = require("../controller/troubleshootController");
 
@@ -48,7 +52,11 @@ router.post("/nodemailerGmail", nodemailerGmail);
 router.post("/sendWarrantyReminder", sendWarrantyReminderAPI);
 
 // Warranty routes
-router.post("/addWarranty", upload.single('image'), addWarranty);
+router.post("/addWarranty", uploadMultiple.fields([
+  { name: 'image', maxCount: 1 },
+  { name: 'invoice', maxCount: 1 }
+]), addWarranty);
+router.post("/processDocument", upload.single('document'), processDocument);
 router.put("/warranty/:id", 
   (req, res, next) => {
     uploadMultiple.fields([

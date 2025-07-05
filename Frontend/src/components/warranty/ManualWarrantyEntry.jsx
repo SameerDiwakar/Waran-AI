@@ -144,10 +144,13 @@ const ManualWarrantyEntry = ({ onSuccess, onClose }) => {
                   </div>
                 </div>
                 <p className="text-sm text-gray-500 mt-2">Upload a product image</p>
+                <label htmlFor="productImage" className="inline-block mt-3 px-3 py-1.5 text-sm bg-orange-500 text-white rounded cursor-pointer font-medium shadow hover:bg-orange-600 transition-colors">
+                  Choose File
+                </label>
                 <Input
                   id="productImage"
                   type="file"
-                  className="mt-2"
+                  className="hidden"
                   onChange={handleProductImageChange}
                   accept="image/png,image/jpeg,image/jpg"
                 />
@@ -219,10 +222,14 @@ const ManualWarrantyEntry = ({ onSuccess, onClose }) => {
           
           <div className="space-y-2">
             <Label htmlFor="invoice">Invoice File (PDF or Image, optional)</Label>
+            <label htmlFor="invoice" className="inline-block mt-2 px-3 py-1.5 text-sm bg-orange-500 text-white rounded cursor-pointer font-medium shadow hover:bg-orange-600 transition-colors">
+              Choose File
+            </label>
             <Input
               id="invoice"
               type="file"
               accept="application/pdf,image/png,image/jpeg,image/jpg"
+              className="hidden"
               onChange={e => setInvoiceFile(e.target.files[0])}
             />
           </div>

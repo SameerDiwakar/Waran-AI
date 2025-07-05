@@ -46,6 +46,7 @@ const EditWarrantyDialog = ({
                   variant="outline"
                   size="sm"
                   onClick={onRemoveImage}
+                  className="bg-teal-500 text-white hover:bg-teal-600 border-none"
                 >
                   Remove Image
                 </Button>
@@ -60,15 +61,18 @@ const EditWarrantyDialog = ({
                   </div>
                 </div>
                 <p className="text-sm text-gray-500 mt-2">Upload a product image</p>
+                <label htmlFor="editProductImage" className="inline-block mt-3 px-4 py-2 bg-orange-500 text-white rounded cursor-pointer font-medium shadow hover:bg-orange-600 transition-colors">
+                  Choose File
+                </label>
+                <Input
+                  id="editProductImage"
+                  type="file"
+                  className="hidden"
+                  onChange={onProductImageChange}
+                  accept="image/png,image/jpeg,image/jpg"
+                />
               </>
             )}
-            <Input
-              id="editProductImage"
-              type="file"
-              className="mt-2"
-              onChange={onProductImageChange}
-              accept="image/png,image/jpeg,image/jpg"
-            />
           </div>
         </div>
 

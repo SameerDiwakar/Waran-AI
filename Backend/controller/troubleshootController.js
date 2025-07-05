@@ -12,47 +12,14 @@ const troubleshootIssue = async (req, res) => {
     // Check if Gemini API key is available
     if (!process.env.GEMINI_API_KEY) {
       console.log('GEMINI_API_KEY not found, using fallback response');
-      
-      // Fallback response without AI
-      const fallbackResponse = {
-        diagnosis: "General Product Issue Analysis",
-        warrantyStatus: warrantyInfo ? "Based on your warranty information" : "Please check your warranty terms",
-        steps: [
-          "Check if the product is properly connected and powered on",
-          "Verify all cables and connections are secure",
-          "Try restarting the device",
-          "Check for any visible damage or loose parts",
-          "Contact manufacturer support if the issue persists"
-        ],
-        repairOptions: [
-          {
-            type: "Warranty Service",
-            description: "Contact manufacturer support for warranty-covered repairs"
-          },
-          {
-            type: "Professional Repair",
-            description: "Local repair service"
-          }
-        ],
-        // nearbyServiceCenters: [
-        //   {
-        //     name: "Local Service Center",
-        //     distance: "Check your area",
-        //     rating: 4.0
-        //   }
-        // ],
-        additionalNotes: "This is a fallback response. For more specific advice, please ensure the GEMINI_API_KEY is configured."
-      };
-
       return res.json({
         success: true,
-        result: fallbackResponse
+        result: getFallbackResponse(warrantyInfo)
       });
     }
 
-    // Initialize Gemini AI only if API key is available
+    // Initialize Gemini AI
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Create a comprehensive prompt for the AI
     const prompt = `
@@ -94,46 +61,53 @@ Please provide a comprehensive troubleshooting analysis in the following JSON fo
 Please ensure the response is valid JSON and provides practical, actionable advice. Focus on common issues and realistic solutions. If the issue is complex or potentially dangerous, recommend professional assistance.
 `;
 
-    console.log('Sending prompt to Gemini AI:', prompt);
+    console.log('Sending prompt to Gemini AI for troubleshooting...');
 
-    const result = await model.generateContent(prompt);
-    const response = result.response.text();
+    let parsedResponse = null;
     
-    console.log('Raw AI response:', response);
-
-    // Try to parse the JSON response
-    let parsedResponse;
     try {
-      // Extract JSON from the response (in case AI adds extra text)
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        parsedResponse = JSON.parse(jsonMatch[0]);
-      } else {
-        parsedResponse = JSON.parse(response);
-      }
-    } catch (parseError) {
-      console.error('Error parsing AI response:', parseError);
-      console.log('Raw response that failed to parse:', response);
+      // Try different model names
+      const modelNames = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+      let model = null;
+      let result = null;
       
-      // Fallback response if JSON parsing fails
-      parsedResponse = {
-        diagnosis: "Unable to parse AI response",
-        warrantyStatus: "Please contact customer support for warranty information",
-        steps: [
-          "Contact the manufacturer's customer support",
-          "Provide detailed description of the issue",
-          "Have your warranty information ready",
-          "Take photos of the problem if applicable"
-        ],
-        repairOptions: [
-          {
-            type: "Contact Support",
-            description: "Reach out to manufacturer support for assistance"
-          }
-        ],
-        // nearbyServiceCenters: [],
-        additionalNotes: "The AI response could not be parsed. Please try again or contact support directly."
-      };
+      for (const modelName of modelNames) {
+        try {
+          console.log(`Trying model: ${modelName} for troubleshooting`);
+          model = genAI.getGenerativeModel({ model: modelName });
+          result = await model.generateContent(prompt);
+          break;
+        } catch (modelError) {
+          console.log(`Model ${modelName} failed:`, modelError.message);
+          continue;
+        }
+      }
+      
+      if (!result) {
+        throw new Error('All Gemini models failed');
+      }
+      
+      const response = result.response.text();
+      console.log('Raw AI response:', response);
+
+      // Try to parse the JSON response
+      try {
+        // Extract JSON from the response (in case AI adds extra text)
+        const jsonMatch = response.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          parsedResponse = JSON.parse(jsonMatch[0]);
+        } else {
+          parsedResponse = JSON.parse(response);
+        }
+      } catch (parseError) {
+        console.error('Error parsing AI response:', parseError);
+        console.log('Raw response that failed to parse:', response);
+        throw new Error('Failed to parse AI response');
+      }
+      
+    } catch (geminiError) {
+      console.error('Gemini AI failed, using fallback response:', geminiError);
+      parsedResponse = getFallbackResponse(warrantyInfo);
     }
 
     res.json({
@@ -158,6 +132,32 @@ Please ensure the response is valid JSON and provides practical, actionable advi
       error: error.message 
     });
   }
+};
+
+// Fallback response function
+const getFallbackResponse = (warrantyInfo) => {
+  return {
+    diagnosis: "General Product Issue Analysis",
+    warrantyStatus: warrantyInfo ? "Based on your warranty information" : "Please check your warranty terms",
+    steps: [
+      "Check if the product is properly connected and powered on",
+      "Verify all cables and connections are secure",
+      "Try restarting the device",
+      "Check for any visible damage or loose parts",
+      "Contact manufacturer support if the issue persists"
+    ],
+    repairOptions: [
+      {
+        type: "Warranty Service",
+        description: "Contact manufacturer support for warranty-covered repairs"
+      },
+      {
+        type: "Professional Repair",
+        description: "Local repair service"
+      }
+    ],
+    additionalNotes: "This is a fallback response. For more specific advice, please ensure the GEMINI_API_KEY is configured."
+  };
 };
 
 module.exports = { 

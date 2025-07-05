@@ -95,7 +95,7 @@ const WarrantyCard = ({ warranty, onUpdate, onDelete }) => {
     try {
       setIsLoading(true);
       const warrantyId = warranty._id || warranty.id;
-      console.log('Deleting warranty with ID:', warrantyId);
+      // console.log('Deleting warranty with ID:', warrantyId);
       await axios.delete(`/warranty/${warrantyId}`);
       toast.success(`${warranty.productName} warranty has been deleted`);
       onDelete(warrantyId);

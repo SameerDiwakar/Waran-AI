@@ -169,7 +169,7 @@ const Dashboard = () => {
                     </svg>
                   </div>
                   <span className="text-lg font-medium">Add New Warranty</span>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 text-center sm:text-left break-words max-w-xs sm:max-w-none">
                     Upload a warranty document or add details manually
                   </p>
                 </Button>
