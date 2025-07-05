@@ -48,7 +48,7 @@ const About = () => {
         <section className="py-16 bg-gradient-to-r from-brand-purple/10 to-brand-navy/5 animate-fade-in-up delay-500">
           <div className="max-w-5xl mx-auto px-4 md:px-0 grid md:grid-cols-2 gap-12 items-center">
             <div className="flex justify-center order-2 md:order-1">
-              <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=400&q=80" alt="Documentation" className="rounded-2xl shadow-lg w-full max-w-xs animate-float-reverse" />
+              <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=400&q=80" alt="Documentation" className="rounded-2xl shadow-lg w-full max-w-md md:max-w-lg animate-float-reverse" />
             </div>
             <div className="order-1 md:order-2">
               <h2 className="text-3xl font-bold text-brand-navy mb-4">Documentation & Tech Stack</h2>
@@ -65,6 +65,7 @@ const About = () => {
                 <li><b>Tailwind CSS</b> for beautiful, responsive design</li>
                 <li><b>React Query</b> for efficient data fetching and caching</li>
                 <li><b>Sonner</b> and <b>Radix UI</b> for modern UI components and notifications</li>
+                <li><b>Tesseract.js</b> for OCR-powered extraction from scanned document uploads</li>
               </ul>
               <p className="text-gray-700 text-base">
                 Our documentation covers everything from uploading invoices to integrating with AI-powered features. Explore the codebase or reach out for more details!
