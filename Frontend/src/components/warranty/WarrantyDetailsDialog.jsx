@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 const WarrantyDetailsDialog = ({ open, onOpenChange, warranty, daysLeft, statusText, formatDate, onEdit }) => (
   <Dialog open={open} onOpenChange={onOpenChange}>
-    <DialogContent className="sm:max-w-md">
+    <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>{warranty.productName} Details</DialogTitle>
       </DialogHeader>
@@ -46,9 +46,19 @@ const WarrantyDetailsDialog = ({ open, onOpenChange, warranty, daysLeft, statusT
             <p className="text-sm text-gray-500">Days Left</p>
             <p className="font-medium">{daysLeft > 0 ? `${daysLeft} days` : 'Expired'}</p>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">Invoice Number</p>
-            <p className="font-medium">{warranty.invoice || 'Not provided'}</p>
+          <div className="col-span-2">
+            <p className="text-sm text-gray-500 mb-1">Invoice File</p>
+            {warranty.invoice ? (
+              <Button
+                variant="secondary"
+                onClick={() => window.open(warranty.invoice, '_blank')}
+                className="w-full"
+              >
+                Preview Invoice
+              </Button>
+            ) : (
+              <span className="font-medium text-gray-400">No invoice uploaded</span>
+            )}
           </div>
         </div>
         <div className="pt-4 flex justify-end space-x-2">

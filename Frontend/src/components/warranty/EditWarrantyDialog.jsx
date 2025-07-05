@@ -9,9 +9,12 @@ const EditWarrantyDialog = ({
   onOpenChange,
   editFormData,
   imagePreview,
+  invoicePreview,
   onProductImageChange,
+  onInvoiceFileChange,
   onInputChange,
   onRemoveImage,
+  onRemoveInvoice,
   onSubmit,
   isLoading,
   setShowEditDialog
@@ -68,6 +71,86 @@ const EditWarrantyDialog = ({
             />
           </div>
         </div>
+
+        {/* Invoice File Upload */}
+        <div className="mb-4">
+          <Label htmlFor="editInvoiceFile">Invoice/Receipt File</Label>
+          <div className="mt-1 border-2 border-dashed rounded-md p-4 text-center">
+            {invoicePreview ? (
+              <div className="space-y-2">
+                <div className="flex justify-center">
+                  {typeof invoicePreview === 'string' && invoicePreview.startsWith('http') ? (
+                    // Existing invoice URL from database
+                    <div className="space-y-2">
+                      <div className="bg-gray-100 p-4 rounded">
+                        <svg className="w-8 h-8 text-gray-600 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p className="text-sm text-gray-600 mt-1">Invoice Available</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(invoicePreview, '_blank')}
+                      >
+                        View Invoice
+                      </Button>
+                    </div>
+                  ) : typeof invoicePreview === 'string' && invoicePreview.endsWith('.pdf') ? (
+                    // New PDF file selected
+                    <div className="space-y-2">
+                      <div className="bg-red-100 p-4 rounded">
+                        <svg className="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                        </svg>
+                        <p className="text-sm text-red-600 mt-1">PDF Document</p>
+                      </div>
+                      <p className="text-xs text-gray-500">{invoicePreview}</p>
+                    </div>
+                  ) : (
+                    // New image file selected
+                    <div className="space-y-2">
+                      <img 
+                        src={invoicePreview} 
+                        alt="Invoice preview" 
+                        className="h-40 w-auto object-contain rounded mx-auto"
+                      />
+                      <p className="text-xs text-gray-500">New image selected</p>
+                    </div>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={onRemoveInvoice}
+                >
+                  Remove Invoice
+                </Button>
+              </div>
+            ) : (
+              <>
+                <div className="flex justify-center">
+                  <div className="bg-gray-100 p-4 rounded-full">
+                    <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500 mt-2">Upload invoice or receipt (PDF/Image)</p>
+              </>
+            )}
+            <Input
+              id="editInvoiceFile"
+              type="file"
+              className="mt-2"
+              onChange={onInvoiceFileChange}
+              accept=".pdf,image/png,image/jpeg,image/jpg"
+            />
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="productName">Product Name *</Label>
@@ -123,15 +206,6 @@ const EditWarrantyDialog = ({
               <option value="automotive">Automotive</option>
               <option value="other">Other</option>
             </select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="invoice">Receipt/Invoice Number</Label>
-            <Input 
-              id="invoice" 
-              placeholder="Optional"
-              value={editFormData.invoice || ''}
-              onChange={onInputChange}
-            />
           </div>
         </div>
         <div className="pt-4 flex justify-end space-x-2">

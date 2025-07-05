@@ -43,18 +43,28 @@ const WarrantyCard = ({ warranty, onUpdate, onDelete }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Format dates for HTML date inputs (YYYY-MM-DD format)
+  const formatDateForInput = (dateString) => {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  };
+  
   const [editFormData, setEditFormData] = useState({
     productName: warranty.productName,
     brand: warranty.brand || '',
-    purchaseDate: warranty.purchaseDate,
-    warrantyEnd: warranty.warrantyEnd,
-    category: warranty.category,
-    invoice: warranty.invoice || ''
+    purchaseDate: formatDateForInput(warranty.purchaseDate),
+    warrantyEnd: formatDateForInput(warranty.warrantyEnd),
+    category: warranty.category
   });
 
   // State for image preview
   const [imagePreview, setImagePreview] = useState(warranty.image);
   const [newImageFile, setNewImageFile] = useState(null);
+  
+  // State for invoice preview
+  const [invoicePreview, setInvoicePreview] = useState(warranty.invoice);
+  const [newInvoiceFile, setNewInvoiceFile] = useState(null);
 
   // Format dates for display
   const formatDate = (dateString) => {
@@ -70,13 +80,14 @@ const WarrantyCard = ({ warranty, onUpdate, onDelete }) => {
     setEditFormData({
       productName: warranty.productName,
       brand: warranty.brand || '',
-      purchaseDate: warranty.purchaseDate,
-      warrantyEnd: warranty.warrantyEnd,
-      category: warranty.category,
-      invoice: warranty.invoice || ''
+      purchaseDate: formatDateForInput(warranty.purchaseDate),
+      warrantyEnd: formatDateForInput(warranty.warrantyEnd),
+      category: warranty.category
     });
     setImagePreview(warranty.image);
+    setInvoicePreview(warranty.invoice);
     setNewImageFile(null);
+    setNewInvoiceFile(null);
     setShowEditDialog(true);
   };
 
@@ -114,6 +125,20 @@ const WarrantyCard = ({ warranty, onUpdate, onDelete }) => {
     }
   };
 
+  const handleInvoiceFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      // Create a preview URL for images, or show filename for PDFs
+      if (selectedFile.type.startsWith('image/')) {
+        const previewUrl = URL.createObjectURL(selectedFile);
+        setInvoicePreview(previewUrl);
+      } else if (selectedFile.type === 'application/pdf') {
+        setInvoicePreview(selectedFile.name);
+      }
+      setNewInvoiceFile(selectedFile);
+    }
+  };
+
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     
@@ -143,6 +168,11 @@ const WarrantyCard = ({ warranty, onUpdate, onDelete }) => {
       // Add new image if selected
       if (newImageFile) {
         formData.append('image', newImageFile);
+      }
+      
+      // Add new invoice file if selected
+      if (newInvoiceFile) {
+        formData.append('invoice', newInvoiceFile);
       }
       
       // Add userId
@@ -234,11 +264,17 @@ const WarrantyCard = ({ warranty, onUpdate, onDelete }) => {
         onOpenChange={setShowEditDialog}
         editFormData={editFormData}
         imagePreview={imagePreview}
+        invoicePreview={invoicePreview}
         onProductImageChange={handleProductImageChange}
+        onInvoiceFileChange={handleInvoiceFileChange}
         onInputChange={handleInputChange}
         onRemoveImage={() => {
           setImagePreview(null);
-          setEditFormData(prev => ({ ...prev, image: null }));
+          setNewImageFile(null);
+        }}
+        onRemoveInvoice={() => {
+          setInvoicePreview(null);
+          setNewInvoiceFile(null);
         }}
         onSubmit={handleEditSubmit}
         isLoading={isLoading}

@@ -3,6 +3,7 @@ const Warranty = require("../models/warranty");
 const User = require("../models/user");
 const cloudinary = require("../utlis/cloudinary");
 const { sendWarrantyReminder } = require("./emailController");
+const fs = require('fs');
 
 const calculateWarrantyStatus = (warrantyEndDate) => {
   const currentDate = new Date();
@@ -22,7 +23,7 @@ const calculateWarrantyStatus = (warrantyEndDate) => {
 
 const addWarranty = async (req, res) => {
   try {
-    const { productName, brand, purchaseDate, warrantyEnd, category, invoice, userId } = req.body;
+    const { productName, brand, purchaseDate, warrantyEnd, category, userId } = req.body;
 
     if (!productName || !purchaseDate || !warrantyEnd || !category || !userId) {
       return res.status(400).json({ message: 'Missing required fields' });
@@ -34,13 +35,35 @@ const addWarranty = async (req, res) => {
     }
 
     let imageUrl = null;
+    let invoiceUrl = null;
 
+    // Handle product image upload (if present)
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         resource_type: 'image',
         folder: 'warranty_images',
       });
       imageUrl = result.secure_url;
+    }
+
+    // Handle invoice file upload (if present)
+    if (req.files && req.files['invoice'] && req.files['invoice'][0]) {
+      const file = req.files['invoice'][0];
+      const resourceType = file.mimetype === 'application/pdf' ? 'raw' : 'image';
+      const result = await cloudinary.uploader.upload(file.path, {
+        resource_type: resourceType,
+        folder: 'warranty_invoices',
+      });
+      invoiceUrl = result.secure_url;
+    } else if (req.file && req.file.fieldname === 'invoice') {
+      // If only invoice is uploaded (single mode)
+      const file = req.file;
+      const resourceType = file.mimetype === 'application/pdf' ? 'raw' : 'image';
+      const result = await cloudinary.uploader.upload(file.path, {
+        resource_type: resourceType,
+        folder: 'warranty_invoices',
+      });
+      invoiceUrl = result.secure_url;
     }
 
     const status = calculateWarrantyStatus(warrantyEnd);
@@ -53,7 +76,7 @@ const addWarranty = async (req, res) => {
       status,
       category,
       image: imageUrl,
-      invoice: invoice || '',
+      invoice: invoiceUrl || '',
       userId,
     });
 
@@ -82,7 +105,11 @@ const addWarranty = async (req, res) => {
 const updateWarranty = async (req, res) => {
   try {
     const { id } = req.params;
-    const { productName, brand, purchaseDate, warrantyEnd, category, invoice, userId } = req.body;
+    const { productName, brand, purchaseDate, warrantyEnd, category, userId } = req.body;
+    
+    console.log('Update warranty request:', { id, productName, brand, purchaseDate, warrantyEnd, category, userId });
+    console.log('Files received:', req.files);
+    
     if (!productName || !purchaseDate || !warrantyEnd || !category || !userId) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
@@ -94,16 +121,68 @@ const updateWarranty = async (req, res) => {
     
     // Get the current warranty to check if status is changing
     const currentWarranty = await Warranty.findById(id);
-    const previousStatus = currentWarranty ? currentWarranty.status : null;
+    if (!currentWarranty) {
+      return res.status(404).json({ message: 'Warranty not found' });
+    }
+    
+    const previousStatus = currentWarranty.status;
     
     let imageUrl = undefined;
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        resource_type: 'image',
-        folder: 'warranty_images',
-      });
-      imageUrl = result.secure_url;
+    let invoiceUrl = undefined;
+
+    // Handle product image upload (if present)
+    if (req.files && req.files['image'] && req.files['image'][0]) {
+      console.log('Processing image upload...');
+      try {
+        const result = await cloudinary.uploader.upload(req.files['image'][0].path, {
+          resource_type: 'image',
+          folder: 'warranty_images',
+        });
+        imageUrl = result.secure_url;
+        console.log('Image uploaded successfully:', imageUrl);
+      } catch (uploadError) {
+        console.error('Error uploading image:', uploadError);
+        return res.status(500).json({ message: 'Error uploading image', error: uploadError.message });
+      }
     }
+
+    // Handle invoice file upload (if present)
+    if (req.files && req.files['invoice'] && req.files['invoice'][0]) {
+      console.log('Processing invoice upload...');
+      try {
+        const file = req.files['invoice'][0];
+        console.log('Invoice file details:', {
+          originalname: file.originalname,
+          mimetype: file.mimetype,
+          size: file.size,
+          path: file.path
+        });
+        
+        // Check if file exists
+        if (!fs.existsSync(file.path)) {
+          console.error('File does not exist at path:', file.path);
+          return res.status(500).json({ message: 'Uploaded file not found' });
+        }
+        
+        const resourceType = file.mimetype === 'application/pdf' ? 'raw' : 'image';
+        console.log('Invoice file type:', file.mimetype, 'Resource type:', resourceType);
+        
+        const result = await cloudinary.uploader.upload(file.path, {
+          resource_type: resourceType,
+          folder: 'warranty_invoices',
+        });
+        invoiceUrl = result.secure_url;
+        console.log('Invoice uploaded successfully:', invoiceUrl);
+      } catch (uploadError) {
+        console.error('Error uploading invoice:', uploadError);
+        console.error('Upload error details:', {
+          message: uploadError.message,
+          stack: uploadError.stack
+        });
+        return res.status(500).json({ message: 'Error uploading invoice', error: uploadError.message });
+      }
+    }
+
     const status = calculateWarrantyStatus(warrantyEnd);
     const updateData = {
       productName,
@@ -112,17 +191,25 @@ const updateWarranty = async (req, res) => {
       warrantyEnd,
       status,
       category,
-      invoice: invoice || '',
       userId,
     };
+    
     if (imageUrl) {
       updateData.image = imageUrl;
     }
+    
+    if (invoiceUrl) {
+      updateData.invoice = invoiceUrl;
+    }
+    
+    console.log('Updating warranty with data:', updateData);
+    
     const updatedWarranty = await Warranty.findByIdAndUpdate(
       id,
       updateData,
       { new: true }
     );
+    
     if (!updatedWarranty) {
       return res.status(404).json({ message: 'Warranty not found' });
     }
@@ -136,14 +223,17 @@ const updateWarranty = async (req, res) => {
         }
       } catch (emailError) {
         // Don't fail the warranty update if email fails
+        console.error('Email reminder error:', emailError);
       }
     }
 
+    console.log('Warranty updated successfully');
     res.json({ message: 'Warranty Updated', warranty: updatedWarranty });
   } catch (error) {
-    // Only log errors
+    // Log detailed error information
     console.error('Error Updating Warranty:', error);
-    res.status(500).json({ message: 'Error Updating Warranty' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ message: 'Error Updating Warranty', error: error.message });
   }
 };
 
@@ -182,9 +272,38 @@ const getWarranties = async (req, res) => {
   }
 };
 
+// Upload invoice file for a warranty
+const uploadInvoiceFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!req.file) {
+      return res.status(400).json({ message: "No invoice file uploaded" });
+    }
+    const file = req.file;
+    const resourceType = file.mimetype === 'application/pdf' ? 'raw' : 'image';
+    const result = await cloudinary.uploader.upload(file.path, {
+      resource_type: resourceType,
+      folder: 'warranty_invoices',
+    });
+    const updatedWarranty = await Warranty.findByIdAndUpdate(
+      id,
+      { invoice: result.secure_url },
+      { new: true }
+    );
+    if (!updatedWarranty) {
+      return res.status(404).json({ message: "Warranty not found" });
+    }
+    res.json({ message: "Invoice uploaded", warranty: updatedWarranty });
+  } catch (error) {
+    console.error("Error uploading invoice:", error);
+    res.status(500).json({ message: "Error uploading invoice" });
+  }
+};
+
 module.exports = {
   addWarranty,
   updateWarranty,
   deleteWarranty,
-  getWarranties
+  getWarranties,
+  uploadInvoiceFile,
 }; 

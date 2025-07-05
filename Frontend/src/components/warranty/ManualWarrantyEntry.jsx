@@ -23,6 +23,7 @@ const ManualWarrantyEntry = ({ onSuccess, onClose }) => {
   // Preview image for manual entry
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [invoiceFile, setInvoiceFile] = useState(null);
 
   const handleProductImageChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -82,11 +83,21 @@ const ManualWarrantyEntry = ({ onSuccess, onClose }) => {
         },
       });
 
-      if (response.data) {
-        toast.success("Warranty added successfully!");
-        onSuccess(response.data.warranty);
-        onClose();
+      let createdWarranty = response.data.warranty;
+      // If invoice file exists, upload it in a second request
+      if (invoiceFile && createdWarranty && createdWarranty._id) {
+        const invoiceForm = new FormData();
+        invoiceForm.append('invoice', invoiceFile);
+        const invoiceRes = await axios.post(`/warranty/${createdWarranty._id}/upload-invoice`, invoiceForm, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        if (invoiceRes.data && invoiceRes.data.warranty) {
+          createdWarranty = invoiceRes.data.warranty;
+        }
       }
+      toast.success("Warranty added successfully!");
+      onSuccess(createdWarranty);
+      onClose();
     } catch (error) {
       console.error('Submission error:', error);
       toast.error(error.response?.data?.message || "Error adding warranty");
@@ -207,12 +218,12 @@ const ManualWarrantyEntry = ({ onSuccess, onClose }) => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="invoice">Receipt/Invoice Number</Label>
-            <Input 
-              id="invoice" 
-              placeholder="Optional"
-              value={formData.invoice || ''}
-              onChange={handleInputChange}
+            <Label htmlFor="invoice">Invoice File (PDF or Image, optional)</Label>
+            <Input
+              id="invoice"
+              type="file"
+              accept="application/pdf,image/png,image/jpeg,image/jpg"
+              onChange={e => setInvoiceFile(e.target.files[0])}
             />
           </div>
         </div>

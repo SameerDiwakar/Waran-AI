@@ -1,5 +1,6 @@
 const router = require("express").Router();
-const upload = require("../middleware/multer");
+const { upload, uploadInvoice, uploadMultiple } = require("../middleware/multer");
+const multer = require("multer");
 
 // Import controllers
 const {
@@ -16,7 +17,8 @@ const {
   addWarranty,
   updateWarranty,
   deleteWarranty,
-  getWarranties
+  getWarranties,
+  uploadInvoiceFile
 } = require("../controller/warrantyController");
 
 const {
@@ -47,9 +49,27 @@ router.post("/sendWarrantyReminder", sendWarrantyReminderAPI);
 
 // Warranty routes
 router.post("/addWarranty", upload.single('image'), addWarranty);
-router.put("/warranty/:id", upload.single('image'), updateWarranty);
+router.put("/warranty/:id", 
+  (req, res, next) => {
+    uploadMultiple.fields([
+      { name: 'image', maxCount: 1 },
+      { name: 'invoice', maxCount: 1 }
+    ])(req, res, (err) => {
+      if (err instanceof multer.MulterError) {
+        console.error('Multer error:', err);
+        return res.status(400).json({ message: 'File upload error: ' + err.message });
+      } else if (err) {
+        console.error('Other error:', err);
+        return res.status(400).json({ message: err.message });
+      }
+      next();
+    });
+  }, 
+  updateWarranty
+);
 router.delete("/warranty/:id", deleteWarranty);
 router.get("/warranties", getWarranties);
+router.post("/warranty/:id/upload-invoice", uploadInvoice.single('invoice'), uploadInvoiceFile);
 
 // Warranty scheduler route
 router.post("/checkWarrantyStatuses", manualWarrantyCheck);
