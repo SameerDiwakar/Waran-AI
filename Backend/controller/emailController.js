@@ -26,13 +26,13 @@ const nodemailerGmail = (req, res) => {
       table: {
         data: [
           {
-            item: "EmailJS",
-            description: "EmailJS service",
+            Field: "EmailJS",
+            Value: "EmailJS service",
             price: "$10.00",
           },
           {
-            item: "Mailgen",
-            description: "Mailgen service",
+            Field: "Mailgen",
+            Value: "Mailgen service",
             price: "$20.00",
           },
         ],
@@ -78,8 +78,8 @@ const sendWarrantyReminder = async (userEmail, userName, warrantyData) => {
     let MailGenerator = new Mailgen({
       theme: "default",
       product: {
-        name: "WarrantAI",
-        link: "https://warrantai.com/",
+        name: "WaranAI",
+        link: "https://waranai.com/",
       },
     });
 
@@ -102,24 +102,24 @@ const sendWarrantyReminder = async (userEmail, userName, warrantyData) => {
         table: {
           data: [
             {
-              item: "Product",
-              description: warrantyData.productName,
+              Field: "Product",
+              Value: warrantyData.productName,
             },
             {
-              item: "Brand",
-              description: warrantyData.brand || "N/A",
+              Field: "Brand",
+              Value: warrantyData.brand || "N/A",
             },
             {
-              item: "Purchase Date",
-              description: purchaseDate,
+              Field: "Purchase Date",
+              Value: purchaseDate,
             },
             {
-              item: "Warranty End Date",
-              description: warrantyEndDate,
+              Field: "Warranty End Date",
+              Value: warrantyEndDate,
             },
             {
-              item: "Category",
-              description: warrantyData.category,
+              Field: "Category",
+              Value: warrantyData.category,
             },
           ],
         },
@@ -167,8 +167,126 @@ const sendWarrantyReminderAPI = async (req, res) => {
   }
 };
 
+// Welcome email function for new users
+const sendWelcomeEmail = async (userEmail, userName) => {
+  try {
+    let config = {
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.APP_PASSWORD,
+      },
+    };
+    let transporter = nodemailer.createTransport(config);
+    let MailGenerator = new Mailgen({
+      theme: "default",
+      product: {
+        name: "WaranAI",
+        link: "https://waranai.com/",
+      },
+    });
+    let response = {
+      body: {
+        name: userName || "Valued Customer",
+        intro: "Welcome to WaranAI! 🎉",
+        action: {
+          instructions: "We're excited to have you on board. Get started by uploading your first warranty document.",
+          button: {
+            color: "#22BC66",
+            text: "Go to Dashboard",
+            link: "https://waranai.com/dashboard",
+          },
+        },
+        table: {
+          data: [
+            { Field: "Document Upload", Value: "Upload warranty documents and invoices" },
+            { Field: "AI Processing", Value: "Automatically extract warranty information" },
+            { Field: "Smart Reminders", Value: "Get notified before warranties expire" },
+            { Field: "Easy Management", Value: "Organize and track all your warranties" },
+          ],
+        },
+        outro: "If you have any questions, feel free to reach out to our support team. Happy warranty managing!",
+      },
+    };
+    let mail = MailGenerator.generate(response);
+    let message = {
+      from: process.env.EMAIL,
+      to: userEmail,
+      subject: `Welcome to WaranAI, ${userName}! 🎉`,
+      html: mail,
+    };
+    const info = await transporter.sendMail(message);
+    console.log("Welcome email sent successfully:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("Error sending welcome email:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Profile update confirmation email function
+const sendProfileUpdateEmail = async (userEmail, userName, updatedFields) => {
+  try {
+    let config = {
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.APP_PASSWORD,
+      },
+    };
+    let transporter = nodemailer.createTransport(config);
+    let MailGenerator = new Mailgen({
+      theme: "default",
+      product: {
+        name: "WaranAI",
+        link: "https://waranai.com/",
+      },
+    });
+    // Create a list of updated fields for the email
+    const updatedFieldsList = Object.keys(updatedFields).map(field => {
+      const fieldName = field.charAt(0).toUpperCase() + field.slice(1);
+      return `• ${fieldName}`;
+    }).join('<br>');
+    let response = {
+      body: {
+        name: userName || "Valued Customer",
+        intro: "Your profile has been updated successfully! ✅",
+        action: {
+          instructions: "Your account information has been modified. Here's what was updated:",
+          button: {
+            color: "#22BC66",
+            text: "View Profile",
+            link: "https://waranai.com/settings",
+          },
+        },
+        table: {
+          data: [
+            { "Updated Fields": "Changes Made", Details: updatedFieldsList || "Profile information updated" },
+          ],
+        },
+        outro: "If you didn't make these changes, please contact our support team immediately. Your account security is important to us!",
+      },
+    };
+    let mail = MailGenerator.generate(response);
+    let message = {
+      from: process.env.EMAIL,
+      to: userEmail,
+      subject: `Profile Updated - WaranAI`,
+      html: mail,
+    };
+    const info = await transporter.sendMail(message);
+    console.log("Profile update email sent successfully:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("Error sending profile update email:", error);
+    return { success: false, error: error.message };
+  }
+};
+
 module.exports = { 
   nodemailerGmail,
+  sendWelcomeEmail,
+  sendProfileUpdateEmail,
   sendWarrantyReminder,
   sendWarrantyReminderAPI
 }; 

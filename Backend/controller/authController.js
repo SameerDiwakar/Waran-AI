@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = 'ndwsd93er932rh02';
 const { z } = require('zod');
+const { sendWelcomeEmail, sendProfileUpdateEmail } = require('./emailController');
 
 // Test route function
 const testRoute = (req, res) => {
@@ -39,6 +40,8 @@ const register = async (req, res) => {
       email,
       password: bcrypt.hashSync(password, bcryptSalt),
     });
+    // Send welcome email (async, don't block response)
+    sendWelcomeEmail(email, name).catch(e => console.error('Welcome email error:', e));
     res.json(userDoc);
   } catch (e) {
     res.status(422).json(e);
@@ -144,10 +147,15 @@ const updateProfile = async (req, res) => {
       }
 
       // Update fields
-      if (name) user.name = name;
-      if (email && email !== user.email) user.email = email;
-      if (newPassword) user.password = bcrypt.hashSync(newPassword, bcryptSalt);
+      const updatedFields = {};
+      if (name && name !== user.name) { user.name = name; updatedFields.name = name; }
+      if (email && email !== user.email) { user.email = email; updatedFields.email = email; }
+      if (newPassword) { user.password = bcrypt.hashSync(newPassword, bcryptSalt); updatedFields.password = true; }
       await user.save();
+      // Send profile update email if any field changed
+      if (Object.keys(updatedFields).length > 0) {
+        sendProfileUpdateEmail(user.email, user.name, updatedFields).catch(e => console.error('Profile update email error:', e));
+      }
       res.json({ success: true });
     } catch (e) {
       res.status(500).json({ success: false, message: "Failed to update profile" });
