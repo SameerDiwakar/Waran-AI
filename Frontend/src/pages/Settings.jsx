@@ -20,6 +20,9 @@ import axios from 'axios';
 const Settings = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:4000/profile', {
@@ -70,23 +73,36 @@ const Settings = () => {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      try {
-        const res = await fetch('http://localhost:4000/account', {
-          method: 'DELETE',
-          credentials: 'include',
-        });
-        if (res.ok) {
-          toast.success('Account deleted');
-          window.location.href = '/';
-        } else {
-          toast.error('Failed to delete account');
-        }
-      } catch (e) {
-        toast.error('Failed to delete account');
-      }
+  const handleDeleteAccount = () => {
+    setShowDeleteModal(true);
+    setDeletePassword("");
+  };
+
+  const confirmDeleteAccount = async () => {
+    if (!deletePassword) {
+      toast.error('Please enter your password to confirm deletion');
+      return;
     }
+    setDeleting(true);
+    try {
+      const res = await fetch('http://localhost:4000/account', {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: deletePassword })
+      });
+      if (res.ok) {
+        toast.success('Account deleted');
+        window.location.href = '/';
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Failed to delete account');
+      }
+    } catch (e) {
+      toast.error('Failed to delete account');
+    }
+    setDeleting(false);
+    setShowDeleteModal(false);
   };
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
@@ -157,6 +173,27 @@ const Settings = () => {
                   >
                     Delete Account
                   </Button>
+                  {showDeleteModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+                      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+                        <h3 className="text-lg font-semibold mb-2">Confirm Account Deletion</h3>
+                        <p className="text-sm mb-4">Please enter your password to confirm account deletion. This action cannot be undone.</p>
+                        <Input
+                          type="password"
+                          placeholder="Enter your password"
+                          value={deletePassword}
+                          onChange={e => setDeletePassword(e.target.value)}
+                          className="mb-4"
+                        />
+                        <div className="flex gap-2 justify-end">
+                          <Button variant="outline" onClick={() => setShowDeleteModal(false)} disabled={deleting}>Cancel</Button>
+                          <Button variant="destructive" onClick={confirmDeleteAccount} disabled={deleting}>
+                            {deleting ? 'Deleting...' : 'Delete'}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = 'ndwsd93er932rh02';
 const { z } = require('zod');
-const { sendWelcomeEmail, sendProfileUpdateEmail } = require('./emailController');
+const { sendWelcomeEmail, sendProfileUpdateEmail, sendAccountDeletionEmail } = require('./emailController');
+const util = require('util');
 
 // Test route function
 const testRoute = (req, res) => {
@@ -104,19 +105,41 @@ const logout = (req, res) => {
 };
 
 // Delete account route function
+const verifyJwt = util.promisify(jwt.verify);
+
 const deleteAccount = async (req, res) => {
   const { token } = req.cookies;
+  const { password } = req.body;
+
   if (!token) return res.status(401).json({ message: "Unauthorized" });
 
-  jwt.verify(token, jwtSecret, {}, async (err, userData) => {
-    if (err) return res.status(401).json({ message: "Unauthorized" });
-    try {
-      await User.findByIdAndDelete(userData.id);
-      res.cookie('token', '').json({ message: "Account deleted" });
-    } catch (e) {
-      res.status(500).json({ message: "Failed to delete account" });
+  try {
+    // This will throw if token is invalid
+    const userData = await verifyJwt(token, jwtSecret);
+
+    if (!password) {
+      return res.status(400).json({ message: "Password is required to delete account" });
     }
-  });
+
+    const user = await User.findById(userData.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const passOk = await bcrypt.compare(password, user.password);
+    if (!passOk) {
+      return res.status(401).json({ message: "Incorrect password" });
+    }
+
+    // Send account deletion email (async, don't block response)
+    sendAccountDeletionEmail(user.email, user.name).catch(e => console.error('Account deletion email error:', e));
+
+    await User.findByIdAndDelete(userData.id);
+
+    res.clearCookie('token').json({ message: "Account deleted successfully" });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Failed to delete account" });
+  }
 };
 
 // Update profile route function

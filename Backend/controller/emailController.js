@@ -137,7 +137,7 @@ const sendWarrantyReminder = async (userEmail, userName, warrantyData) => {
     };
 
     const info = await transporter.sendMail(message);
-    console.log('Warranty reminder email sent successfully:', info.messageId);
+    // console.log('Warranty reminder email sent successfully:', info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('Error sending warranty reminder email:', error);
@@ -216,7 +216,7 @@ const sendWelcomeEmail = async (userEmail, userName) => {
       html: mail,
     };
     const info = await transporter.sendMail(message);
-    console.log("Welcome email sent successfully:", info.messageId);
+    // console.log("Welcome email sent successfully:", info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error("Error sending welcome email:", error);
@@ -275,10 +275,59 @@ const sendProfileUpdateEmail = async (userEmail, userName, updatedFields) => {
       html: mail,
     };
     const info = await transporter.sendMail(message);
-    console.log("Profile update email sent successfully:", info.messageId);
+    // console.log("Profile update email sent successfully:", info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error("Error sending profile update email:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Account deletion confirmation email function
+const sendAccountDeletionEmail = async (userEmail, userName) => {
+  try {
+    let config = {
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.APP_PASSWORD,
+      },
+    };
+    let transporter = nodemailer.createTransport(config);
+    let MailGenerator = new Mailgen({
+      theme: "default",
+      product: {
+        name: "WaranAI",
+        link: "https://waranai.com/",
+      },
+    });
+    let response = {
+      body: {
+        name: userName || "Valued Customer",
+        intro: "Your WaranAI account has been deleted.",
+        action: {
+          instructions: "We're sorry to see you go. If this was a mistake or you have feedback, please let us know.",
+          button: {
+            color: "#22BC66",
+            text: "Contact Support",
+            link: "https://waranai.com/contact",
+          },
+        },
+        outro: "Thank you for using WaranAI. If you change your mind, you're always welcome back!",
+      },
+    };
+    let mail = MailGenerator.generate(response);
+    let message = {
+      from: process.env.EMAIL,
+      to: userEmail,
+      subject: `Account Deleted - WaranAI`,
+      html: mail,
+    };
+    const info = await transporter.sendMail(message);
+    // console.log("Account deletion email sent successfully:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("Error sending account deletion email:", error);
     return { success: false, error: error.message };
   }
 };
@@ -288,5 +337,6 @@ module.exports = {
   sendWelcomeEmail,
   sendProfileUpdateEmail,
   sendWarrantyReminder,
-  sendWarrantyReminderAPI
+  sendWarrantyReminderAPI,
+  sendAccountDeletionEmail
 }; 

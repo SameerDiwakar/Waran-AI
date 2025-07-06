@@ -46,6 +46,18 @@ When a warranty status changes to "expiring soon":
 - Sends via Gmail SMTP
 - Returns success/failure status
 
+#### `sendWelcomeEmail(userEmail, userName)`
+- Sends a welcome email to new users after registration
+- Highlights key features and provides a dashboard link
+
+#### `sendProfileUpdateEmail(userEmail, userName, updatedFields)`
+- Notifies users when their profile (name, email, or password) is updated
+- Lists the updated fields for transparency and security
+
+#### `sendAccountDeletionEmail(userEmail, userName)`
+- Sends a confirmation email after a user deletes their account
+- Provides a support contact and a message of appreciation
+
 #### `scheduleWarrantyCheck()`
 - Initializes the scheduler
 - Runs initial check after server startup
@@ -66,6 +78,15 @@ Body: { userEmail, userName, warrantyData }
 ```
 Sends a test warranty reminder email.
 
+### Welcome Email (automatic)
+- Sent automatically after user registration.
+
+### Profile Update Email (automatic)
+- Sent automatically after a user changes their name, email, or password.
+
+### Account Deletion Email (automatic)
+- Sent automatically after a user deletes their account.
+
 ## Environment Variables Required
 
 ```env
@@ -83,6 +104,11 @@ The email includes:
 - Call-to-action button linking to dashboard
 - Purchase and warranty end dates
 - Product category and brand information
+
+Other email templates:
+- Welcome email: Feature highlights, dashboard link, onboarding message
+- Profile update email: List of updated fields, security notice
+- Account deletion email: Confirmation, support contact, farewell message
 
 ## Monitoring and Logging
 
@@ -126,16 +152,6 @@ The email includes:
 - Batches email operations
 - Implements proper error handling
 - Uses async/await for non-blocking operations
-
-## Email Template Features
-
-The email includes:
-- Personalized greeting with user's name
-- Clear warning about expiring warranty
-- Product details in a professional table
-- Call-to-action button linking to dashboard
-- Purchase and warranty end dates
-- Product category and brand information
 
 ## Testing the System
 
