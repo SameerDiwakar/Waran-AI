@@ -30,7 +30,7 @@ app.use(cors({
   //   "http://localhost:8080"
   // ],
   origin: 
-    "https://waran-ai-sameer-diwakars-projects.vercel.app",
+    "https://waran-ai.vercel.app/",
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
