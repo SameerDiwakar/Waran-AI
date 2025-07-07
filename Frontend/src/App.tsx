@@ -16,7 +16,8 @@ import About from "./pages/About";
 import Pricing from "./pages/Pricing";
 
 axios.defaults.withCredentials = true
-axios.defaults.baseURL = "http://localhost:4000";
+axios.defaults.baseURL = "https://waran-ai.onrender.com";
+// axios.defaults.baseURL = "http://localhost:4000";
 
 const queryClient = new QueryClient();
 

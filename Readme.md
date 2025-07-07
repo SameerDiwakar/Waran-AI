@@ -32,7 +32,7 @@
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React, Vite, TailwindCSS, shadcn/ui, RadixUI, S
+- **Frontend**: React, Vite, TailwindCSS, shadcn/ui, RadixUI
 - **Backend**: Node.js, Express, MongoDB (Mongoose), JWT, Zod, Multer
 - **AI & OCR**: Tesseract.js, Google Gemini AI (for advanced extraction)
 - **Email**: Nodemailer, Mailgen, Gmail SMTP
