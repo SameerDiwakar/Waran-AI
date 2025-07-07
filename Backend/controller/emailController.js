@@ -199,10 +199,10 @@ const sendWelcomeEmail = async (userEmail, userName) => {
         },
         table: {
           data: [
-            { Field: "Document Upload", Value: "Upload warranty documents and invoices" },
-            { Field: "AI Processing", Value: "Automatically extract warranty information" },
-            { Field: "Smart Reminders", Value: "Get notified before warranties expire" },
-            { Field: "Easy Management", Value: "Organize and track all your warranties" },
+            { Feature: "Document Upload", Description: "Upload warranty documents and invoices" },
+            { Feature: "AI Processing", Description: "Automatically extract warranty information" },
+            { Feature: "Smart Reminders", Description: "Get notified before warranties expire" },
+            { Feature: "Easy Management", Description: "Organize and track all your warranties" },
           ],
         },
         outro: "If you have any questions, feel free to reach out to our support team. Happy warranty managing!",
