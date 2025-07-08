@@ -25,7 +25,7 @@ const Settings = () => {
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:4000/profile', {
+    fetch('https://waran-ai.onrender.com/profile', {
       credentials: 'include',
     })
       .then(res => res.json())
@@ -85,7 +85,7 @@ const Settings = () => {
     }
     setDeleting(true);
     try {
-      const res = await fetch('http://localhost:4000/account', {
+      const res = await fetch('https://waran-ai.onrender.com/account', {
         method: 'DELETE',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

@@ -162,12 +162,12 @@ node test-email-reminder.js
 
 ### 2. Manual API trigger:
 ```bash
-curl -X POST http://localhost:4000/checkWarrantyStatuses
+curl -X POST https://waran-ai.onrender.com/checkWarrantyStatuses
 ```
 
 ### 3. Test individual email:
 ```bash
-curl -X POST http://localhost:4000/sendWarrantyReminder \
+curl -X POST https://waran-ai.onrender.com/sendWarrantyReminder \
   -H "Content-Type: application/json" \
   -d '{
     "userEmail": "test@example.com",
