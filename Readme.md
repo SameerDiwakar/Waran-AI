@@ -1,6 +1,6 @@
-# WarranAI
+# WaranAI
 
-**WarranAI** is a full-stack web application for managing product warranties, powered by AI-driven document extraction, smart reminders, and a modern user experience. It helps users upload, organize, and track their warranties, receive timely email notifications, and never miss a warranty claim again.
+**WaranAI** is a full-stack web application for managing product warranties, powered by AI-driven document extraction, smart reminders, and a modern user experience. It helps users upload, organize, and track their warranties, receive timely email notifications, and never miss a warranty claim again.
 
 ---
 
@@ -111,4 +111,4 @@ For support or business inquiries, contact [diwakarsameer27@gmail.com].
 
 ---
 
-**WarranAI — Never lose track of your warranties again!**
+**WaranAI — Never lose track of your warranties again!**
