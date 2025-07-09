@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,29 +16,19 @@ import SettingsHeader from '../components/settings/SettingsHeader';
 import SettingsSidebar from '../components/settings/SettingsSidebar';
 import SettingsProfileForm from '../components/settings/SettingsProfileForm';
 import axios from 'axios';
+import SettingsSkeleton from '../components/settings/SettingsSkeleton';
+import { useUser } from '../UserContext';
 
 const Settings = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, setUser, ready } = useUser();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [resetPasswords, setResetPasswords] = useState(false); // NEW
 
-  useEffect(() => {
-    fetch('https://waran-ai.onrender.com/profile', {
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then(data => {
-        setUser({
-          ...data,
-          emailNotifications: true,
-          theme: 'light',
-        });
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+  // If user context is not ready, show skeleton
+  if (!ready) return <SettingsSkeleton />;
+  if (!user) return <div className="text-center mt-10">User not found.</div>;
 
   const handleEmailNotificationToggle = () => {
     setUser(prev => ({
@@ -65,6 +55,7 @@ const Settings = () => {
       if (res.data && res.data.success) {
         toast.success('Profile updated successfully');
         setUser({ ...user, name, email });
+        setResetPasswords(true); // RESET PASSWORD FIELDS
       } else {
         toast.error(res.data.message || 'Failed to update profile');
       }
@@ -93,6 +84,7 @@ const Settings = () => {
       });
       if (res.ok) {
         toast.success('Account deleted');
+        setUser(null); // Clear user context
         window.location.href = '/';
       } else {
         const data = await res.json();
@@ -104,9 +96,6 @@ const Settings = () => {
     setDeleting(false);
     setShowDeleteModal(false);
   };
-
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
-  if (!user) return <div className="text-center mt-10">User not found.</div>;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -143,7 +132,7 @@ const Settings = () => {
                     })()}%` }}></div>
                   </div>
                 </div>
-                <SettingsProfileForm user={user} setUser={setUser} handleSaveProfile={handleSaveProfile} />
+                <SettingsProfileForm user={user} setUser={setUser} handleSaveProfile={handleSaveProfile} resetPasswords={resetPasswords} setResetPasswords={setResetPasswords} />
                 <div className="flex items-center justify-between mt-8 p-4 border rounded bg-gray-50">
                   <div>
                     <h4 className="font-medium">Email Notifications</h4>

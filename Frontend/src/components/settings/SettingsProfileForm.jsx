@@ -1,12 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const SettingsProfileForm = ({ user, setUser, handleSaveProfile }) => {
+const SettingsProfileForm = ({ user, setUser, handleSaveProfile, resetPasswords, setResetPasswords }) => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+
+  useEffect(() => {
+    if (resetPasswords) {
+      setOldPassword('');
+      setNewPassword('');
+      setResetPasswords(false);
+    }
+  }, [resetPasswords, setResetPasswords]);
 
   const onSubmit = (e) => {
     e.preventDefault();

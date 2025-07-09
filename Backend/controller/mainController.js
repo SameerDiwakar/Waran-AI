@@ -7,6 +7,11 @@
 
 // If you need to add any general or utility functions, they can go here
 
+const healthCheck = (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+};
+
 module.exports = {
   // Add any remaining functions here if needed
+  healthCheck,
 }; 

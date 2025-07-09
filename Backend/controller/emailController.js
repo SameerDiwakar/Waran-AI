@@ -79,7 +79,7 @@ const sendWarrantyReminder = async (userEmail, userName, warrantyData) => {
       theme: "default",
       product: {
         name: "WaranAI",
-        link: "https://waran-ai-sameer-diwakars-projects.vercel.app/",
+        link: "https://waran-ai.vercel.app",
       },
     });
 
@@ -96,7 +96,7 @@ const sendWarrantyReminder = async (userEmail, userName, warrantyData) => {
           button: {
             color: "#22BC66",
             text: "View Warranty Details",
-            link: "https://waran-ai-sameer-diwakars-projects.vercel.app/dashboard"
+            link: "https://waran-ai.vercel.app/dashboard"
           }
         },
         table: {
@@ -182,7 +182,7 @@ const sendWelcomeEmail = async (userEmail, userName) => {
       theme: "default",
       product: {
         name: "WaranAI",
-        link: "https://waran-ai-sameer-diwakars-projects.vercel.app/",
+        link: "https://waran-ai.vercel.app",
       },
     });
     let response = {
@@ -194,7 +194,7 @@ const sendWelcomeEmail = async (userEmail, userName) => {
           button: {
             color: "#22BC66",
             text: "Go to Dashboard",
-            link: "https://waran-ai-sameer-diwakars-projects.vercel.app/dashboard",
+            link: "https://waran-ai.vercel.app/dashboard",
           },
         },
         table: {
@@ -239,7 +239,7 @@ const sendProfileUpdateEmail = async (userEmail, userName, updatedFields) => {
       theme: "default",
       product: {
         name: "WaranAI",
-        link: "https://waran-ai-sameer-diwakars-projects.vercel.app/",
+        link: "https://waran-ai.vercel.app",
       },
     });
     // Create a list of updated fields for the email
@@ -256,7 +256,7 @@ const sendProfileUpdateEmail = async (userEmail, userName, updatedFields) => {
           button: {
             color: "#22BC66",
             text: "View Profile",
-            link: "https://waran-ai-sameer-diwakars-projects.vercel.app/settings",
+            link: "https://waran-ai.vercel.app/settings",
           },
         },
         table: {
@@ -298,7 +298,7 @@ const sendAccountDeletionEmail = async (userEmail, userName) => {
       theme: "default",
       product: {
         name: "WaranAI",
-        link: "https://waran-ai-sameer-diwakars-projects.vercel.app/",
+        link: "https://waran-ai.vercel.app",
       },
     });
     let response = {
@@ -310,7 +310,7 @@ const sendAccountDeletionEmail = async (userEmail, userName) => {
           button: {
             color: "#22BC66",
             text: "Contact Support",
-            link: "https://waran-ai-sameer-diwakars-projects.vercel.app/contact",
+            link: "diwakarsameer27@gmail.com",
           },
         },
         outro: "Thank you for using WaranAI. If you change your mind, you're always welcome back!",

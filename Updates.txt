@@ -1,0 +1,5 @@
+Major Update 1:
+Settings Page Loader
+Correction of Links in emailController
+Log Out issue while moving back to Landing Page
+Prevention of Backend Cold server by health pinger

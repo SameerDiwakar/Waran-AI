@@ -39,6 +39,8 @@ const {
   manualWarrantyCheck
 } = require("../utlis/warrantyScheduler");
 
+const { healthCheck } = require("../controller/mainController");
+
 // Auth routes
 router.get("/test", testRoute);
 router.post("/register", register);
@@ -87,5 +89,8 @@ router.post("/troubleshoot", troubleshootIssue);
 
 // Account deletion route
 router.delete("/account", deleteAccount);
+
+// Health check route
+router.get("/health", healthCheck);
 
 module.exports = router;

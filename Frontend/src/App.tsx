@@ -14,49 +14,58 @@ import { UserContextProvider } from "./UserContext";
 import axios from "axios";
 import About from "./pages/About";
 import Pricing from "./pages/Pricing";
+import { useEffect } from "react";
 
-axios.defaults.withCredentials = true
-axios.defaults.baseURL = "https://waran-ai.onrender.com";
-// axios.defaults.baseURL = "http://localhost:4000";
+axios.defaults.withCredentials = true;
+// Set the baseURL to localhost for development, fallback to production if not available
+axios.defaults.baseURL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:4000"
+    : "https://waran-ai.onrender.com";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <UserContextProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/settings" 
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="/about" element={<About />} />
-            <Route path="/pricing" element={<Pricing />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </UserContextProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  useEffect(() => {
+    fetch('https://waran-ai.onrender.com/health').catch(() => {});
+  }, []);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <UserContextProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/settings" 
+                element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/about" element={<About />} />
+              <Route path="/pricing" element={<Pricing />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </UserContextProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

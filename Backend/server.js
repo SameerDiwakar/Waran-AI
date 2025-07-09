@@ -25,12 +25,11 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
   credentials: true,
-  // origin: [
-  //   "https://waran-ai-sameer-diwakars-projects.vercel.app",
-  //   "http://localhost:8080"
-  // ],
-  origin: 
-    "https://waran-ai.vercel.app",
+  origin: [
+    "https://waran-ai-sameer-diwakars-projects.vercel.app",
+    "http://localhost:8080",
+    "https://waran-ai.vercel.app"
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
