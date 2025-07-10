@@ -39,17 +39,21 @@ const SettingsSidebar = ({ user }) => {
     <div className="lg:col-span-1">
       <div className="card bg-white border-2 shadow-lg rounded-3xl flex flex-col h-full">
         <div className="p-6 flex flex-col h-full">
-          <div className="relative py-6 mb-6 rounded-2xl flex flex-col items-center ">
-            <div className="flex items-center justify-center mb-2">
-              <Avatar className="h-16 w-16 shadow-lg border-4 bg-white border-[#6942EF]">
-                <AvatarImage src={user.avatar} />
-                <AvatarFallback className="bg-brand-purple text-xl text-white">{user.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
-              </Avatar>
+          {/* Welcome message - hide on mobile */}
+          <div className="hidden md:block">
+            <div className="relative py-6 mb-6 rounded-2xl flex flex-col items-center ">
+              <div className="flex items-center justify-center mb-2">
+                <Avatar className="h-16 w-16 shadow-lg border-4 bg-white border-[#6942EF]">
+                  <AvatarImage src={user.avatar} />
+                  <AvatarFallback className="bg-brand-purple text-xl text-white">{user.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
+                </Avatar>
+              </div>
+              <h1 className="text-xl font-bold text-brand-purple mb-1">Welcome{user?.name ? `, ${user.name.split(' ')[0]}` : ''}!</h1>
+              <p className="text-brand-purple/80 text-sm max-w-xs text-center">Personalize your WaranAI experience, manage your profile, and keep your warranties safe and smart with AI-powered reminders.</p>
             </div>
-            <h1 className="text-xl font-bold text-brand-purple mb-1">Welcome{user?.name ? `, ${user.name.split(' ')[0]}` : ''}!</h1>
-            <p className="text-brand-purple/80 text-sm max-w-xs text-center">Personalize your WaranAI experience, manage your profile, and keep your warranties safe and smart with AI-powered reminders.</p>
           </div>
-          <div className="mb-6 rounded-2xl border-2 p-2 shadow-[0_4px_24px_0_rgba(105,66,239,0.10)] flex justify-center">
+          {/* Calendar - hide on mobile */}
+          <div className="hidden md:block mb-6 rounded-2xl border-2 p-2 shadow-[0_4px_24px_0_rgba(105,66,239,0.10)] flex justify-center">
             <Calendar 
               className="rounded-xl"
               classNames={{

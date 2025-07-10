@@ -3,6 +3,13 @@
 ## Overview
 The Email Reminder System automatically sends email notifications to users when their warranties are about to expire (within 5 days). This system runs both automatically on a schedule and can be triggered manually.
 
+## Recent Updates
+- **Frontend Improvements:**
+  - The user menu now includes a direct Dashboard navigation option, making it easier for users to access their dashboard from anywhere in the app.
+  - The manual warranty entry form now provides a preview for uploaded invoice files (image or PDF) and allows users to remove the selected invoice file before submission.
+- **Deployment Clarification:**
+  - For Vercel deployments, the `vercel.json` file must be placed inside the `Frontend/` directory (not the project root) to ensure correct SPA routing and prevent 404 errors on direct route access.
+
 ## How It Works
 
 ### 1. **Warranty Status Calculation**
@@ -22,6 +29,12 @@ When a warranty status changes to "expiring soon":
 2. Generates a professional email using Mailgen
 3. Sends email via Gmail SMTP
 4. Only errors are logged for monitoring
+
+#### Forgot Password Help via Email
+- If a user forgets their password, they can request a password reset from the login or forgot password page.
+- The system sends a secure password reset link to the user's registered email address.
+- The link is valid for a limited time and can only be used once.
+- The user clicks the link, sets a new password, and regains access to their account.
 
 ## System Components
 
@@ -78,6 +91,14 @@ Body: { userEmail, userName, warrantyData }
 ```
 Sends a test warranty reminder email.
 
+### Forgot Password (User Help)
+```
+POST /forgot-password
+Body: { email }
+```
+- Sends a password reset link to the user's email if the email is registered.
+- The user can use the link to securely reset their password.
+
 ### Welcome Email (automatic)
 - Sent automatically after user registration.
 
@@ -109,6 +130,7 @@ Other email templates:
 - Welcome email: Feature highlights, dashboard link, onboarding message
 - Profile update email: List of updated fields, security notice
 - Account deletion email: Confirmation, support contact, farewell message
+- Forgot password email: Secure reset link, instructions for regaining access
 
 ## Monitoring and Logging
 

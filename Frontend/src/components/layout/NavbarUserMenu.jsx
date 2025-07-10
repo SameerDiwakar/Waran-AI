@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Link } from 'react-router-dom';
 import { LogOut, Settings, Mail } from "lucide-react";
+import { Home } from "lucide-react";
 
 const NavbarUserMenu = ({ user, handleLogout, isMobile = false }) => {
   if (isMobile) {
@@ -60,6 +61,17 @@ const NavbarUserMenu = ({ user, handleLogout, isMobile = false }) => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="my-2" />
+        <DropdownMenuItem asChild className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+          <Link to="/dashboard" className="flex items-center gap-3 w-full">
+            <div className="p-2 bg-brand-purple/10 rounded-lg group-hover:bg-brand-purple/20 transition-colors">
+              <Home className="h-4 w-4 text-brand-purple" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-medium text-gray-900">Dashboard</span>
+              <span className="text-xs text-gray-500">Go to your dashboard</span>
+            </div>
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem asChild className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
           <Link to="/settings" className="flex items-center gap-3 w-full">
             <div className="p-2 bg-brand-purple/10 rounded-lg group-hover:bg-brand-purple/20 transition-colors">

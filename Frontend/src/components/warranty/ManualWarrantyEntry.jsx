@@ -24,6 +24,8 @@ const ManualWarrantyEntry = ({ onSuccess, onClose }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [invoiceFile, setInvoiceFile] = useState(null);
+  // Add invoice preview state
+  const [invoicePreview, setInvoicePreview] = useState(null);
 
   const handleProductImageChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -41,6 +43,22 @@ const ManualWarrantyEntry = ({ onSuccess, onClose }) => {
       ...prev,
       [id]: value
     }));
+  };
+
+  const handleInvoiceFileChange = (e) => {
+    const file = e.target.files[0];
+    setInvoiceFile(file);
+    if (file) {
+      if (file.type.startsWith('image/')) {
+        setInvoicePreview(URL.createObjectURL(file));
+      } else if (file.type === 'application/pdf') {
+        setInvoicePreview('pdf');
+      } else {
+        setInvoicePreview(null);
+      }
+    } else {
+      setInvoicePreview(null);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -222,16 +240,48 @@ const ManualWarrantyEntry = ({ onSuccess, onClose }) => {
           
           <div className="space-y-2">
             <Label htmlFor="invoice">Invoice File (PDF or Image, optional)</Label>
-            <label htmlFor="invoice" className="inline-block mt-2 px-3 py-1.5 text-sm bg-orange-500 text-white rounded cursor-pointer font-medium shadow hover:bg-orange-600 transition-colors">
+            <div className="flex items-center space-x-2 mt-2">
+              <label htmlFor="invoice" className="px-3 py-1.5 text-sm bg-orange-500 text-white rounded cursor-pointer font-medium shadow hover:bg-orange-600 transition-colors">
               Choose File
             </label>
+              {invoiceFile && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setInvoiceFile(null);
+                    setInvoicePreview(null);
+                  }}
+                >
+                  Remove File
+                </Button>
+              )}
+            </div>
             <Input
               id="invoice"
               type="file"
               accept="application/pdf,image/png,image/jpeg,image/jpg"
               className="hidden"
-              onChange={e => setInvoiceFile(e.target.files[0])}
+              onChange={handleInvoiceFileChange}
             />
+            {/* Invoice preview */}
+            {invoicePreview && (
+              <div className="mt-2">
+                {invoicePreview === 'pdf' ? (
+                  <div className="flex items-center space-x-2 text-gray-600">
+                    <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>PDF file selected</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <img src={invoicePreview} alt="Invoice preview" className="h-32 w-auto object-contain rounded border mt-2" />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
         

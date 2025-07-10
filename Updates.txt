@@ -7,4 +7,4 @@ Prevention of Backend Cold server by health pinger
 Major Update 2:
 Used cron job externally to keep backend server awake
 Adjusted Cookie Settings to prevent logout issues
-Designed Forgot Password Mechanism
+Designed Forgot Password  (Faced Vercel SPA Route issue)

@@ -102,9 +102,8 @@ const Settings = () => {
       <SettingsHeader user={user} />
       <div className="waranai-container py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <SettingsSidebar user={user} />
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Main Content first for mobile */}
+          <div className="lg:col-span-2 space-y-6 lg:order-2">
             <Card>
               <CardHeader>
                 <CardTitle>Profile Information</CardTitle>
@@ -197,6 +196,10 @@ const Settings = () => {
                 <div className="text-white/90 text-sm max-w-md">Did you know? Keeping your warranty info organized can save you hours and money. WaranAI will remind you before your warranty expires—never miss a claim again!</div>
               </div>
             </div>
+          </div>
+          {/* Sidebar second for mobile, first for desktop */}
+          <div className="lg:order-1">
+            <SettingsSidebar user={user} />
           </div>
         </div>
       </div>
