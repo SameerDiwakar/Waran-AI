@@ -17,17 +17,18 @@
     "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mailgen": "^2.0.29",
     "mongoose": "^8.15.1",
     "multer": "^2.0.1",
+    "node-fetch": "^2.6.7",
     "nodemailer": "^6.10.1",
     "path": "^0.12.7",
     "pdf-poppler": "^0.2.1",
     "tesseract.js": "^4.1.1",
-    "zod": "^3.25.71",
-    "node-fetch": "^2.6.7"
+    "zod": "^3.25.71"
   }
 }

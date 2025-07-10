@@ -8,6 +8,7 @@ import axios from 'axios';
 import { UserContext } from '@/UserContext';
 import { z } from 'zod';
 import { Eye, EyeOff } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -24,6 +25,10 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { setUser } = useContext(UserContext);
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotResult, setForgotResult] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,7 +42,7 @@ const LoginForm = () => {
     setIsLoading(true);
 
     try {
-      const { data } = await axios.post('/login', { email, password });
+      const { data } = await axios.post('/login', { email, password }, { withCredentials: true });
       if (data) {
         setUser(data);
         toast.success("Login successful!");
@@ -48,6 +53,20 @@ const LoginForm = () => {
       toast.error(error.response?.data?.message || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleForgot = async (e) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    setForgotResult(null);
+    try {
+      const res = await axios.post('/forgot-password', { email: forgotEmail });
+      setForgotResult(res.data);
+    } catch (err) {
+      setForgotResult({ exists: false, message: 'Something went wrong. Please try again.' });
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -80,9 +99,9 @@ const LoginForm = () => {
               <label htmlFor="password" className="text-sm font-medium">
                 Password
               </label>
-              <Link to="/forgot-password" className="text-sm text-brand-purple hover:underline">
+              <button type="button" className="text-sm text-brand-purple hover:underline" onClick={() => setShowForgot(true)}>
                 Forgot password?
-              </Link>
+              </button>
             </div>
             <div className="relative">
               <Input
@@ -121,6 +140,35 @@ const LoginForm = () => {
           </Link>
         </p>
       </CardFooter>
+      <Dialog open={showForgot} onOpenChange={setShowForgot}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Forgot Password</DialogTitle>
+          </DialogHeader>
+          {forgotLoading ? (
+            <div className="py-4">Checking email in database…</div>
+          ) : forgotResult ? (
+            <div className="py-4">{forgotResult.message}</div>
+          ) : (
+            <form onSubmit={handleForgot} className="space-y-4">
+              <label htmlFor="forgot-email" className="block text-sm font-medium">Enter your registered email</label>
+              <Input
+                id="forgot-email"
+                type="email"
+                value={forgotEmail}
+                onChange={e => setForgotEmail(e.target.value)}
+                required
+                autoFocus
+              />
+              <DialogFooter>
+                <Button type="submit" className="w-full" disabled={forgotLoading}>
+                  Send Reset Link
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

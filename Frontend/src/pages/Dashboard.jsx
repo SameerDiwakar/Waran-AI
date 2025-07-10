@@ -22,7 +22,7 @@ const Dashboard = () => {
   
   const handleLogout = async () => {
     try {
-      await axios.post('/logout');
+      await axios.post('/logout', {}, { withCredentials: true });
       setUser(null);
       navigate('/login');
     } catch (error) {
@@ -169,7 +169,7 @@ const Dashboard = () => {
                     </svg>
                   </div>
                   <span className="text-lg font-medium">Add New Warranty</span>
-                  <p className="text-sm text-gray-500 text-center sm:text-left break-words max-w-xs sm:max-w-none">
+                  <p className="text-sm text-gray-500 text-center sm:text-left break-words max-w-[90vw] sm:max-w-none px-2 sm:px-0">
                     Upload a warranty document or add details manually
                   </p>
                 </Button>

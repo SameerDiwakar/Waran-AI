@@ -7,6 +7,9 @@ const jwtSecret = 'ndwsd93er932rh02';
 const { z } = require('zod');
 const { sendWelcomeEmail, sendProfileUpdateEmail, sendAccountDeletionEmail } = require('./emailController');
 const util = require('util');
+const crypto = require('crypto');
+const PasswordResetToken = require('../models/passwordResetToken');
+const { sendPasswordResetEmail } = require('./emailController');
 
 // Test route function
 const testRoute = (req, res) => {
@@ -74,7 +77,8 @@ const login = async (req, res) => {
         if (err) throw err;
         res.cookie('token', token, {
           httpOnly: true,
-          sameSite: 'lax',
+          sameSite: 'none', // <-- allow cross-site
+          secure: true,     // <-- required for cross-site cookies
           maxAge: 1000 * 60 * 60 * 24 * 30 // 30 days
         }).json(userDoc);
       }
@@ -186,6 +190,71 @@ const updateProfile = async (req, res) => {
   });
 };
 
+// Forgot Password: Request reset link
+const forgotPassword = async (req, res) => {
+  const { email, local } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) return res.json({ exists: false, message: 'The email is not registered.' });
+
+  // Generate secure token
+  const token = crypto.randomBytes(32).toString('hex');
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+
+  // Invalidate previous tokens
+  await PasswordResetToken.updateMany({ userId: user._id, used: false }, { used: true });
+
+  // Store hashed token
+  await PasswordResetToken.create({
+    userId: user._id,
+    tokenHash,
+    expiresAt,
+    used: false,
+  });
+
+  // Choose reset URL based on local param
+  const baseUrl = local
+    ? 'http://localhost:8080/forgot-password?token=' 
+    : 'https://waran-ai.vercel.app/forgot-password?token=';
+  const resetUrl = `${baseUrl}${token}`;
+  await sendPasswordResetEmail(email, user.name, resetUrl);
+
+  return res.json({ exists: true, message: 'Check your email, you’ll receive a reset link shortly.' });
+};
+
+// Validate reset token
+const validateResetToken = async (req, res) => {
+  const { token } = req.query;
+  if (!token) return res.status(400).json({ valid: false, message: 'Missing token' });
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  const record = await PasswordResetToken.findOne({ tokenHash, used: false });
+  if (!record || record.expiresAt < new Date()) {
+    return res.status(400).json({ valid: false, message: 'Reset link is invalid or expired.' });
+  }
+  return res.json({ valid: true });
+};
+
+// Reset password
+const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+  if (!token || !newPassword) return res.status(400).json({ message: 'Missing token or password' });
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  const record = await PasswordResetToken.findOne({ tokenHash, used: false });
+  if (!record || record.expiresAt < new Date()) {
+    return res.status(400).json({ message: 'Reset link is invalid or expired.' });
+  }
+  // Update password
+  const user = await User.findById(record.userId);
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  user.password = bcrypt.hashSync(newPassword, bcryptSalt);
+  await user.save();
+  // Invalidate token
+  record.used = true;
+  await record.save();
+  // Optionally: log out all sessions (not implemented here)
+  return res.json({ message: 'Password reset successful. Please log in.' });
+};
+
 module.exports = { 
   testRoute,
   register,
@@ -193,5 +262,8 @@ module.exports = {
   profile,
   logout,
   deleteAccount,
-  updateProfile
+  updateProfile,
+  forgotPassword,
+  validateResetToken,
+  resetPassword
 }; 

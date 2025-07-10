@@ -332,11 +332,60 @@ const sendAccountDeletionEmail = async (userEmail, userName) => {
   }
 };
 
+// Password reset email function
+const sendPasswordResetEmail = async (userEmail, userName, resetUrl) => {
+  try {
+    let config = {
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.APP_PASSWORD,
+      },
+    };
+    let transporter = nodemailer.createTransport(config);
+    let MailGenerator = new Mailgen({
+      theme: "default",
+      product: {
+        name: "WaranAI",
+        link: "https://waran-ai.vercel.app",
+      },
+    });
+    let response = {
+      body: {
+        name: userName || "Valued Customer",
+        intro: "You requested a password reset for your WaranAI account.",
+        action: {
+          instructions: "Click the button below to reset your password. This link is valid for 30 minutes and can be used only once.",
+          button: {
+            color: "#22BC66",
+            text: "Reset Password",
+            link: resetUrl,
+          },
+        },
+        outro: "If you did not request this, you can safely ignore this email. Your password will not be changed.",
+      },
+    };
+    let mail = MailGenerator.generate(response);
+    let message = {
+      from: process.env.EMAIL,
+      to: userEmail,
+      subject: `Reset your WaranAI password`,
+      html: mail,
+    };
+    const info = await transporter.sendMail(message);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    return { success: false, error: error.message };
+  }
+};
+
 module.exports = { 
   nodemailerGmail,
   sendWelcomeEmail,
   sendProfileUpdateEmail,
   sendWarrantyReminder,
   sendWarrantyReminderAPI,
-  sendAccountDeletionEmail
+  sendAccountDeletionEmail,
+  sendPasswordResetEmail
 }; 

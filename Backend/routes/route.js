@@ -10,7 +10,10 @@ const {
   profile,
   logout,
   deleteAccount,
-  updateProfile
+  updateProfile,
+  forgotPassword,
+  validateResetToken,
+  resetPassword
 } = require("../controller/authController");
 
 const {
@@ -48,6 +51,10 @@ router.post("/login", login);
 router.get("/profile", profile);
 router.post("/logout", logout);
 router.put("/profile", updateProfile);
+// Forgot/reset password routes
+router.post("/forgot-password", forgotPassword);
+router.get("/reset-password/validate", validateResetToken);
+router.post("/reset-password", resetPassword);
 
 // Email routes
 router.post("/nodemailerGmail", nodemailerGmail);

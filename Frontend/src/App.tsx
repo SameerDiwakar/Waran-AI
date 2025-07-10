@@ -15,6 +15,8 @@ import axios from "axios";
 import About from "./pages/About";
 import Pricing from "./pages/Pricing";
 import { useEffect } from "react";
+import ForgotPassword from "./pages/ForgotPassword";
+
 
 axios.defaults.withCredentials = true;
 // Set the baseURL to localhost for development, fallback to production if not available
@@ -40,6 +42,7 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route 
                 path="/dashboard" 
                 element={

@@ -3,3 +3,8 @@ Settings Page Loader
 Correction of Links in emailController
 Log Out issue while moving back to Landing Page
 Prevention of Backend Cold server by health pinger
+
+Major Update 2:
+Used cron job externally to keep backend server awake
+Adjusted Cookie Settings to prevent logout issues
+Designed Forgot Password Mechanism

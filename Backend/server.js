@@ -24,14 +24,19 @@ mongoose.connect(process.env.MONGO_URL)
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  credentials: true,
-  origin: [
-    "https://waran-ai-sameer-diwakars-projects.vercel.app",
-    "http://localhost:8080",
-    "https://waran-ai.vercel.app"
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      "http://localhost:8080",
+      "https://waran-ai.vercel.app"
+    ];
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
 }));
 
 // Routes
