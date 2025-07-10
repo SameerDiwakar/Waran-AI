@@ -355,7 +355,7 @@ const sendPasswordResetEmail = async (userEmail, userName, resetUrl) => {
         name: userName || "Valued Customer",
         intro: "You requested a password reset for your WaranAI account.",
         action: {
-          instructions: "Click the button below to reset your password. This link is valid for 30 minutes and can be used only once.",
+          instructions: "Click the button below to reset your password. This link is valid for 10 minutes and can be used only once.",
           button: {
             color: "#22BC66",
             text: "Reset Password",
